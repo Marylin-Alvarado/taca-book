@@ -1,5 +1,153 @@
----
-title: "03-capitulo"
+title: "Equivalencia y Conversión de Modelos"
+author: "Mateo Chamba"
 format: html
+
+# Capítulo 3  
+## Equivalencia y Conversión de Modelos  
+Basado en *Esparza & Blondin (2025)* :contentReference[oaicite:0]{index=0}
+
+Este capítulo profundiza en la equivalencia entre modelos deterministas y no deterministas, y presenta los algoritmos formales para convertir entre ellos, tal como se expone en el **Capítulo 1, Sección 1.4 del libro**. Se abordan dos conversiones esenciales:  
+- La **construcción de subconjuntos (Powerset Construction)** para transformar un NFA en un DFA equivalente.  
+- El **algoritmo de eliminación de transiciones ε**, para convertir un ε-NFA en un NFA estándar sin pérdida de comportamiento.
+
 ---
 
+# 1. Determinismo vs No Determinismo  
+El libro demuestra que el determinismo y el no determinismo poseen **igual poder expresivo**: ambos reconocen exactamente los **lenguajes regulares**. Esto se demuestra formalmente en el capítulo 1 mostrando conversiones sistemáticas entre los modelos.
+
+La equivalencia se fundamenta en:  
+- La capacidad de un DFA de simular todas las posibles ejecuciones de un NFA mediante **conjuntos de estados** (construcción de subconjuntos).  
+- La posibilidad de eliminar transiciones ε sin alterar el lenguaje reconocido.  
+
+---
+
+# 2. Algoritmo de Construcción de Subconjuntos  
+### Basado en: *Sección 1.4.1 — From NFA to DFA* :contentReference[oaicite:1]{index=1}
+
+La **Powerset Construction** transforma un NFA  
+\[
+A = (Q, \Sigma, \delta, Q_0, F)
+\]  
+en un DFA equivalente  
+\[
+A' = (Q', \Sigma, \delta', q'_0, F').
+\]
+
+### 2.1. Idea central  
+El DFA no mantiene un único estado activo, sino un **conjunto de estados del NFA**, representando todas las ejecuciones posibles debido al no determinismo.
+
+El libro lo explica como:  
+> "El DFA resultante tiene como estados todos los subconjuntos de Q, y su transición simula a δ extendiendo la lectura letra por letra sobre el conjunto actual."  
+:contentReference[oaicite:2]{index=2}
+
+### 2.2. Definición formal (según el libro)
+
+- **Estados del DFA:**  
+  \[
+  Q' = \mathcal{P}(Q)
+  \]
+- **Estado inicial:**  
+  \[
+  q'_0 = Q_0
+  \]
+- **Función de transición:**  
+  \[
+  \delta'(S, a) = \bigcup_{q \in S} \delta(q, a)
+  \]
+- **Estados de aceptación:**  
+  \[
+  F' = \{S \subseteq Q : S \cap F \neq \emptyset\}
+  \]
+
+### 2.3. Observación importante del libro  
+El libro resalta un punto clave que muchos textos no mencionan:
+
+> "**No es necesario construir todos los subconjuntos de Q**, solo aquellos alcanzables desde el conjunto inicial."  
+:contentReference[oaicite:3]{index=3}
+
+Esto optimiza fuertemente la construcción.
+
+### 2.4. Estado trampa (dead state)  
+Si para algún conjunto S y letra a:
+
+\[
+\delta'(S,a) = \emptyset
+\]
+
+se crea (si no existe) el **estado trampa**, que absorbe cualquier transición posterior.
+
+---
+
+# 3. Eliminación de Transiciones ε  
+### Basado en: *Sección 1.4.2 — From NFA-ε to NFA*  
+:contentReference[oaicite:4]{index=4}
+
+Este algoritmo convierte un automata con transiciones ε en un NFA estándar.  
+Es una fase previa necesaria para aplicar luego la construcción de subconjuntos.
+
+### 3.1. Cierre-ε (epsilon-closure)  
+Para cada estado q:
+
+\[
+\varepsilon(q) = \{q\} \cup \{p : q \xrightarrow{\varepsilon}^\ast p\}
+\]
+
+Incluye el propio estado y todos los que se alcanzan usando solo ε-transiciones.
+
+### 3.2. Nuevo conjunto de estados iniciales  
+\[
+Q_0' = \bigcup_{q \in Q_0} \varepsilon(q)
+\]
+
+### 3.3. Nueva transición  
+Para cada estado q y letra a:
+
+\[
+\delta'(q,a) = \bigcup_{p \in \varepsilon(q)} \delta(p,a)^\varepsilon
+\]
+
+donde:
+
+\[
+X^\varepsilon = \bigcup_{x \in X} \varepsilon(x)
+\]
+
+Esto asegura considerar cualquier transición posible tras una cadena de ε–movimientos.
+
+### 3.4. Estados finales  
+El libro lo resume así:
+
+> “Un estado q es final si él mismo o alguno de sus ε-alcanzables está en F.”  
+:contentReference[oaicite:5]{index=5}
+
+Formalmente:
+
+\[
+F' = \{ q \in Q : \varepsilon(q) \cap F \neq \emptyset \}
+\]
+
+---
+
+# 4. Relación entre ambos algoritmos  
+El libro presenta una secuencia formal que muestra que todos los modelos son equivalentes:
+
+1. **ε–NFA → NFA** (eliminación de ε).  
+2. **NFA → DFA** (powerset construction).  
+3. **DFA minimizado** (capítulo 2).
+
+Esta cadena demuestra que determinismo y no determinismo reconocen exactamente los mismos lenguajes.
+
+---
+
+# 5. Conclusiones
+- El determinismo y el no-determinismo son equivalentes en poder expresivo.  
+- La **construcción de subconjuntos** permite obtener un DFA correcto y total a partir de cualquier NFA.  
+- El **estado trampa** asegura que el DFA cumpla con la definición de totalidad.  
+- La **eliminación de transiciones ε** permite normalizar un automata antes de su determinización.  
+- Los algoritmos presentados en el libro constituyen métodos formales, eficientes y probados.
+
+---
+
+# Bibliografía
+- Esparza, J. & Blondin, M. (2025). *Automata Theory: Algorithms for Sets and Relations*. MIT Press.  
+:contentReference[oaicite:6]{index=6}
