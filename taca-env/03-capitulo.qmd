@@ -1,21 +1,162 @@
-# 3.2 Eliminación de Transiciones ε en Autómatas Finitos 
+title: "Equivalencia y Conversión de Modelos" author: "Mateo Chamba" format: html
 
-::: {.callout-note}
+# Capítulo 3
+
+## Equivalencia y Conversión de Modelos
+
+Basado en *Esparza & Blondin (2025)* :contentReference[oaicite:0]{index="0"}
+
+Este capítulo profundiza en la equivalencia entre modelos deterministas y no deterministas, y presenta los algoritmos formales para convertir entre ellos, tal como se expone en el **Capítulo 1, Sección 1.4 del libro**. Se abordan dos conversiones esenciales:\
+- La **construcción de subconjuntos (Powerset Construction)** para transformar un NFA en un DFA equivalente.\
+- El **algoritmo de eliminación de transiciones ε**, para convertir un ε-NFA en un NFA estándar sin pérdida de comportamiento.
+
+------------------------------------------------------------------------
+
+# 1. Determinismo vs No Determinismo
+
+El libro demuestra que el determinismo y el no determinismo poseen **igual poder expresivo**: ambos reconocen exactamente los **lenguajes regulares**. Esto se demuestra formalmente en el capítulo 1 mostrando conversiones sistemáticas entre los modelos.
+
+La equivalencia se fundamenta en:\
+- La capacidad de un DFA de simular todas las posibles ejecuciones de un NFA mediante **conjuntos de estados** (construcción de subconjuntos).\
+- La posibilidad de eliminar transiciones ε sin alterar el lenguaje reconocido.
+
+------------------------------------------------------------------------
+
+# 2. Algoritmo de Construcción de Subconjuntos
+
+### Basado en: *Sección 1.4.1 — From NFA to DFA* :contentReference[oaicite:1]{index="1"}
+
+La **Powerset Construction** transforma un NFA\
+\[ A = (Q, \Sigma, \delta, Q_0, F) \]\
+en un DFA equivalente\
+\[ A' = (Q', \Sigma, \delta', q'\_0, F'). \]
+
+### 2.1. Idea central
+
+El DFA no mantiene un único estado activo, sino un **conjunto de estados del NFA**, representando todas las ejecuciones posibles debido al no determinismo.
+
+El libro lo explica como:\
+\> "El DFA resultante tiene como estados todos los subconjuntos de Q, y su transición simula a δ extendiendo la lectura letra por letra sobre el conjunto actual."\
+:contentReference[oaicite:2]{index="2"}
+
+### 2.2. Definición formal (según el libro)
+
+-   **Estados del DFA:**\
+    \[ Q' = \mathcal{P}(Q) \]
+-   **Estado inicial:**\
+    \[ q'\_0 = Q_0 \]
+-   **Función de transición:**\
+    \[ \delta'(S, a) = \bigcup\_{q \in S} \delta(q, a) \]
+-   **Estados de aceptación:**\
+    \[ F' = {S \subseteq Q : S \cap F \neq \emptyset} \]
+
+### 2.3. Observación importante del libro
+
+El libro resalta un punto clave que muchos textos no mencionan:
+
+> "**No es necesario construir todos los subconjuntos de Q**, solo aquellos alcanzables desde el conjunto inicial."\
+> :contentReference[oaicite:3]{index="3"}
+
+Esto optimiza fuertemente la construcción.
+
+### 2.4. Estado trampa (dead state)
+
+Si para algún conjunto S y letra a:
+
+\[ \delta'(S,a) = \emptyset \]
+
+se crea (si no existe) el **estado trampa**, que absorbe cualquier transición posterior.
+
+------------------------------------------------------------------------
+
+# 3. Eliminación de Transiciones ε
+
+### Basado en: *Sección 1.4.2 — From NFA-ε to NFA*
+
+:contentReference[oaicite:4]{index="4"}
+
+Este algoritmo convierte un automata con transiciones ε en un NFA estándar.\
+Es una fase previa necesaria para aplicar luego la construcción de subconjuntos.
+
+### 3.1. Cierre-ε (epsilon-closure)
+
+Para cada estado q:
+
+\[ \varepsilon(q) = {q} \cup {p : q \xrightarrow{\varepsilon}\^\ast p} \]
+
+Incluye el propio estado y todos los que se alcanzan usando solo ε-transiciones.
+
+### 3.2. Nuevo conjunto de estados iniciales
+
+\[ Q_0' = \bigcup\_{q \in Q_0} \varepsilon(q) \]
+
+### 3.3. Nueva transición
+
+Para cada estado q y letra a:
+
+\[ \delta'(q,a) = \bigcup\_{p \in \varepsilon(q)} \delta(p,a)\^\varepsilon \]
+
+donde:
+
+\[ X\^\varepsilon = \bigcup\_{x \in X} \varepsilon(x) \]
+
+Esto asegura considerar cualquier transición posible tras una cadena de ε–movimientos.
+
+### 3.4. Estados finales
+
+El libro lo resume así:
+
+> “Un estado q es final si él mismo o alguno de sus ε-alcanzables está en F.”\
+> :contentReference[oaicite:5]{index="5"}
+
+Formalmente:
+
+\[ F' = { q \in Q : \varepsilon(q) \cap F \neq \emptyset } \]
+
+------------------------------------------------------------------------
+
+# 4. Relación entre ambos algoritmos
+
+El libro presenta una secuencia formal que muestra que todos los modelos son equivalentes:
+
+1.  **ε–NFA → NFA** (eliminación de ε).\
+2.  **NFA → DFA** (powerset construction).\
+3.  **DFA minimizado** (capítulo 2).
+
+Esta cadena demuestra que determinismo y no determinismo reconocen exactamente los mismos lenguajes.
+
+------------------------------------------------------------------------
+
+# 5. Conclusiones
+
+-   El determinismo y el no-determinismo son equivalentes en poder expresivo.\
+-   La **construcción de subconjuntos** permite obtener un DFA correcto y total a partir de cualquier NFA.\
+-   El **estado trampa** asegura que el DFA cumpla con la definición de totalidad.\
+-   La **eliminación de transiciones ε** permite normalizar un automata antes de su determinización.\
+-   Los algoritmos presentados en el libro constituyen métodos formales, eficientes y probados.
+
+------------------------------------------------------------------------
+
+# 3.2 Eliminación de Transiciones ε en Autómatas Finitos
+
+::: callout-note
 ## Introducción
+
 La eliminación de transiciones ε de un ε-NFA es un procedimiento fundamental en teoría formal de la computación que transforma un autómata finito no determinista con transiciones epsilon en un NFA estándar sin tales transiciones, preservando el lenguaje aceptado. Este proceso, conocido formalmente como **determinización parcial**, constituye un paso crítico en la construcción de compiladores, procesamiento de expresiones regulares y verificación de lenguajes formales.
 :::
 
 ## Definición de ε-NFA
 
-::: {.callout-tip}
+::: callout-tip
 ## Definición Formal
+
 Un **ε-NFA** se define formalmente como una tupla $M = (Q, \Sigma, \delta, q_0, F)$ donde:
 
-- $Q$: conjunto finito de estados
-- $\Sigma$: alfabeto de entrada (donde $\epsilon \notin \Sigma$)
-- $\delta: Q \times (\Sigma \cup \{\epsilon\}) \rightarrow \mathcal{P}(Q)$ es la función de transición
-- $q_0 \in Q$: estado inicial
-- $F \subseteq Q$: conjunto de estados finales
+-   $Q$: conjunto finito de estados
+-   $\Sigma$: alfabeto de entrada (donde $\epsilon \notin \Sigma$)
+-   $\delta: Q \times (\Sigma \cup \{\epsilon\}) \rightarrow \mathcal{P}(Q)$ es la función de transición
+-   $q_0 \in Q$: estado inicial
+-   $F \subseteq Q$: conjunto de estados finales
 :::
 
 La distinción crucial respecto a un NFA convencional es que $\delta$ incluye transiciones etiquetadas con $\epsilon$, que pueden ejecutarse sin consumir símbolo de entrada alguno.
@@ -42,7 +183,7 @@ Dado un ε-NFA $M = (Q, \Sigma, \delta, q_0, F)$, el algoritmo construye un NFA 
 
 Para cada estado $q \in Q$, se calcula $\epsilon\text{-closure}(q)$. Computacionalmente, esto se realiza mediante una búsqueda en profundidad (DFS) o amplitud (BFS) en el grafo de transiciones ε:
 
-```pseudocode
+``` pseudocode
 Algoritmo: Cálculo de Cierre-ε
 Entrada: Estado q ∈ Q
 Salida: ε-closure(q)
@@ -60,6 +201,7 @@ Salida: ε-closure(q)
 ```
 
 ## Complejidad
+
 La complejidad temporal de este algoritmo es $O(|Q|^2)$ en el peor caso, aunque típicamente es más eficiente.
 
 #### Paso 2: Definición de la Nueva Función de Transición
@@ -80,8 +222,9 @@ Formalmente, esto asegura que cualquier camino en $M$ que alcance un estado fina
 
 ### Demostración de Equivalencia
 
-::: {.callout-important}
+::: callout-important
 ## Teorema (Equivalencia de Lenguajes)
+
 Para un ε-NFA $M$ y su correspondiente NFA sin ε-transiciones $M'$ construido por el algoritmo anterior, $L(M) = L(M')$.
 :::
 
@@ -112,8 +255,9 @@ La complejidad del algoritmo depende de tres componentes principales:
 
 Por lo tanto, la complejidad total es $O(|\Sigma| \cdot |Q|^2)$ para la eliminación de ε-transiciones, mientras que la determinización subsiguiente puede ser exponencial.
 
-::: {.callout-warning}
+::: callout-warning
 ## Teorema (Hardness)
+
 Determinar si la construcción de subconjuntos producirá una explosión exponencial es PSPACE-difícil, lo que implica que no existe algoritmo polinomial general para predecir el tamaño final del autómata determinista.
 :::
 
@@ -135,20 +279,20 @@ Consideremos el siguiente ε-NFA que reconoce el lenguaje de cadenas sobre $\Sig
 -   Estados finales: $F = \{q_3\}$
 -   Función de transición $\delta$:
 
-| Estado | Símbolo | Destino(s) |
-|--------|---------|------------|
-| $q_0$  | $\epsilon$ | $\{q_1\}$ |
-| $q_0$  | $b$ | $\{q_0\}$ |
-| $q_1$  | $\epsilon$ | $\{q_2\}$ |
-| $q_1$  | $a$ | $\{q_3\}$ |
-| $q_2$  | $a$ | $\{q_3\}$ |
-| $q_2$  | $b$ | $\{q_2\}$ |
-| $q_3$  | $a$ | $\{q_3\}$ |
-| $q_3$  | $b$ | $\{q_3\}$ |
+| Estado | Símbolo    | Destino(s) |
+|--------|------------|------------|
+| $q_0$  | $\epsilon$ | $\{q_1\}$  |
+| $q_0$  | $b$        | $\{q_0\}$  |
+| $q_1$  | $\epsilon$ | $\{q_2\}$  |
+| $q_1$  | $a$        | $\{q_3\}$  |
+| $q_2$  | $a$        | $\{q_3\}$  |
+| $q_2$  | $b$        | $\{q_2\}$  |
+| $q_3$  | $a$        | $\{q_3\}$  |
+| $q_3$  | $b$        | $\{q_3\}$  |
 
 **Representación gráfica del ε-NFA:**
 
-```
+```         
        ε         ε         a
 q₀ -------> q₁ -------> q₂ -------> q₃ (final)
  ↺           |           ↺            ↺↺
@@ -161,11 +305,10 @@ q₀ -------> q₁ -------> q₂ -------> q₃ (final)
 
 Aplicamos el algoritmo de cálculo de cierre-ε para cada estado:
 
-::: {.panel-tabset}
-
+::: panel-tabset
 #### Estado $q_0$
 
-```{.default}
+``` default
 Inicio: descubiertos = {q₀}, pendientes = {q₀}
 
 Iteración 1:
@@ -190,7 +333,7 @@ Iteración 3:
 
 #### Estado $q_1$
 
-```{.default}
+``` default
 Inicio: descubiertos = {q₁}, pendientes = {q₁}
 
 Iteración 1:
@@ -209,7 +352,7 @@ Iteración 2:
 
 #### Estado $q_2$
 
-```{.default}
+``` default
 Inicio: descubiertos = {q₂}, pendientes = {q₂}
 
 Iteración 1:
@@ -219,19 +362,17 @@ Iteración 1:
 
 ✓ Resultado: ε-closure(q₂) = {q₂}
 ```
-
-
 :::
 
 ::: {.callout-note collapse="true"}
 ## Tabla Resumen de Cierres-ε
 
-| Estado | ε-closure |
-|--------|-----------|
+| Estado | ε-closure           |
+|--------|---------------------|
 | $q_0$  | $\{q_0, q_1, q_2\}$ |
-| $q_1$  | $\{q_1, q_2\}$ |
-| $q_2$  | $\{q_2\}$ |
-| $q_3$  | $\{q_3\}$ |
+| $q_1$  | $\{q_1, q_2\}$      |
+| $q_2$  | $\{q_2\}$           |
+| $q_3$  | $\{q_3\}$           |
 :::
 
 ### Paso 2: Construcción de la Nueva Función de Transición
@@ -240,65 +381,65 @@ Para cada estado y cada símbolo del alfabeto, calculamos $\delta'$ usando la f�
 
 $$\delta'(q, a) = \epsilon\text{-closure}\left(\bigcup_{p \in \epsilon\text{-closure}(q)} \delta(p, a)\right)$$
 
-**Para estado $q_0$:**
+**Para estado** $q_0$:
 
-- **Con símbolo 'a':**
-  
-  $$\begin{aligned}
-  \epsilon\text{-closure}(q_0) &= \{q_0, q_1, q_2\} \\
-  \delta(q_0, a) &= \emptyset \\
-  \delta(q_1, a) &= \{q_3\} \\
-  \delta(q_2, a) &= \{q_3\} \\
-  \bigcup &= \{q_3\} \\
-  \epsilon\text{-closure}(\{q_3\}) &= \{q_3\} \\
-  \delta'(q_0, a) &= \{q_3\}
-  \end{aligned}$$
+-   **Con símbolo 'a':**
 
-- **Con símbolo 'b':**
-  
-  $$\begin{aligned}
-  \epsilon\text{-closure}(q_0) &= \{q_0, q_1, q_2\} \\
-  \delta(q_0, b) &= \{q_0\} \\
-  \delta(q_1, b) &= \emptyset \\
-  \delta(q_2, b) &= \{q_2\} \\
-  \bigcup &= \{q_0, q_2\} \\
-  \epsilon\text{-closure}(\{q_0, q_2\}) &= \{q_0, q_1, q_2\} \\
-  \delta'(q_0, b) &= \{q_0, q_1, q_2\}
-  \end{aligned}$$
+    $$\begin{aligned}
+    \epsilon\text{-closure}(q_0) &= \{q_0, q_1, q_2\} \\
+    \delta(q_0, a) &= \emptyset \\
+    \delta(q_1, a) &= \{q_3\} \\
+    \delta(q_2, a) &= \{q_3\} \\
+    \bigcup &= \{q_3\} \\
+    \epsilon\text{-closure}(\{q_3\}) &= \{q_3\} \\
+    \delta'(q_0, a) &= \{q_3\}
+    \end{aligned}$$
 
-**Para estado $q_1$:**
+-   **Con símbolo 'b':**
 
-- **Con símbolo 'a':**
-  
-  $$\begin{aligned}
-  \epsilon\text{-closure}(q_1) &= \{q_1, q_2\} \\
-  \delta(q_1, a) &= \{q_3\} \\
-  \delta(q_2, a) &= \{q_3\} \\
-  \bigcup &= \{q_3\} \\
-  \delta'(q_1, a) &= \{q_3\}
-  \end{aligned}$$
+    $$\begin{aligned}
+    \epsilon\text{-closure}(q_0) &= \{q_0, q_1, q_2\} \\
+    \delta(q_0, b) &= \{q_0\} \\
+    \delta(q_1, b) &= \emptyset \\
+    \delta(q_2, b) &= \{q_2\} \\
+    \bigcup &= \{q_0, q_2\} \\
+    \epsilon\text{-closure}(\{q_0, q_2\}) &= \{q_0, q_1, q_2\} \\
+    \delta'(q_0, b) &= \{q_0, q_1, q_2\}
+    \end{aligned}$$
 
-- **Con símbolo 'b':**
-  
-  $$\begin{aligned}
-  \epsilon\text{-closure}(q_1) &= \{q_1, q_2\} \\
-  \delta(q_1, b) &= \emptyset \\
-  \delta(q_2, b) &= \{q_2\} \\
-  \bigcup &= \{q_2\} \\
-  \delta'(q_1, b) &= \{q_2\}
-  \end{aligned}$$
+**Para estado** $q_1$:
 
-**Para estado $q_2$:**
+-   **Con símbolo 'a':**
 
-- **Con símbolo 'a':** $\delta'(q_2, a) = \epsilon\text{-closure}(\delta(q_2, a)) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
+    $$\begin{aligned}
+    \epsilon\text{-closure}(q_1) &= \{q_1, q_2\} \\
+    \delta(q_1, a) &= \{q_3\} \\
+    \delta(q_2, a) &= \{q_3\} \\
+    \bigcup &= \{q_3\} \\
+    \delta'(q_1, a) &= \{q_3\}
+    \end{aligned}$$
 
-- **Con símbolo 'b':** $\delta'(q_2, b) = \epsilon\text{-closure}(\delta(q_2, b)) = \epsilon\text{-closure}(\{q_2\}) = \{q_2\}$
+-   **Con símbolo 'b':**
 
-**Para estado $q_3$:**
+    $$\begin{aligned}
+    \epsilon\text{-closure}(q_1) &= \{q_1, q_2\} \\
+    \delta(q_1, b) &= \emptyset \\
+    \delta(q_2, b) &= \{q_2\} \\
+    \bigcup &= \{q_2\} \\
+    \delta'(q_1, b) &= \{q_2\}
+    \end{aligned}$$
 
-- **Con símbolo 'a':** $\delta'(q_3, a) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
+**Para estado** $q_2$:
 
-- **Con símbolo 'b':** $\delta'(q_3, b) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
+-   **Con símbolo 'a':** $\delta'(q_2, a) = \epsilon\text{-closure}(\delta(q_2, a)) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
+
+-   **Con símbolo 'b':** $\delta'(q_2, b) = \epsilon\text{-closure}(\delta(q_2, b)) = \epsilon\text{-closure}(\{q_2\}) = \{q_2\}$
+
+**Para estado** $q_3$:
+
+-   **Con símbolo 'a':** $\delta'(q_3, a) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
+
+-   **Con símbolo 'b':** $\delta'(q_3, b) = \epsilon\text{-closure}(\{q_3\}) = \{q_3\}$
 
 ### 4.4 Paso 3: Determinación de Estados Finales
 
@@ -308,10 +449,10 @@ $$F' = \{q \in Q \mid \epsilon\text{-closure}(q) \cap F \neq \emptyset\}$$
 
 Verificamos cada estado:
 
-- $\epsilon\text{-closure}(q_0) \cap \{q_3\} = \{q_0, q_1, q_2\} \cap \{q_3\} = \emptyset$ → $q_0$ no es final
-- $\epsilon\text{-closure}(q_1) \cap \{q_3\} = \{q_1, q_2\} \cap \{q_3\} = \emptyset$ → $q_1$ no es final
-- $\epsilon\text{-closure}(q_2) \cap \{q_3\} = \{q_2\} \cap \{q_3\} = \emptyset$ → $q_2$ no es final
-- $\epsilon\text{-closure}(q_3) \cap \{q_3\} = \{q_3\} \cap \{q_3\} = \{q_3\}$ → $q_3$ **es final**
+-   $\epsilon\text{-closure}(q_0) \cap \{q_3\} = \{q_0, q_1, q_2\} \cap \{q_3\} = \emptyset$ → $q_0$ no es final
+-   $\epsilon\text{-closure}(q_1) \cap \{q_3\} = \{q_1, q_2\} \cap \{q_3\} = \emptyset$ → $q_1$ no es final
+-   $\epsilon\text{-closure}(q_2) \cap \{q_3\} = \{q_2\} \cap \{q_3\} = \emptyset$ → $q_2$ no es final
+-   $\epsilon\text{-closure}(q_3) \cap \{q_3\} = \{q_3\} \cap \{q_3\} = \{q_3\}$ → $q_3$ **es final**
 
 Por lo tanto: $F' = \{q_3\}$
 
@@ -325,23 +466,23 @@ Por lo tanto: $F' = \{q_3\}$
 -   Estados finales: $F' = \{q_3\}$
 -   Función de transición $\delta'$:
 
-| Estado | Símbolo | Destino(s) |
-|--------|---------|------------|
-| $q_0$  | $a$ | $\{q_3\}$ |
-| $q_0$  | $b$ | $\{q_0, q_1, q_2\}$ |
-| $q_1$  | $a$ | $\{q_3\}$ |
-| $q_1$  | $b$ | $\{q_2\}$ |
-| $q_2$  | $a$ | $\{q_3\}$ |
-| $q_2$  | $b$ | $\{q_2\}$ |
-| $q_3$  | $a$ | $\{q_3\}$ |
-| $q_3$  | $b$ | $\{q_3\}$ |
+| Estado | Símbolo | Destino(s)          |
+|--------|---------|---------------------|
+| $q_0$  | $a$     | $\{q_3\}$           |
+| $q_0$  | $b$     | $\{q_0, q_1, q_2\}$ |
+| $q_1$  | $a$     | $\{q_3\}$           |
+| $q_1$  | $b$     | $\{q_2\}$           |
+| $q_2$  | $a$     | $\{q_3\}$           |
+| $q_2$  | $b$     | $\{q_2\}$           |
+| $q_3$  | $a$     | $\{q_3\}$           |
+| $q_3$  | $b$     | $\{q_3\}$           |
 
-::: {.callout-note}
+::: callout-note
 ## Observaciones importantes
 
-1. El NFA resultante **no tiene transiciones ε**.
-2. El estado $q_0$ ahora puede transitar con 'b' a un conjunto de estados $\{q_0, q_1, q_2\}$, reflejando el efecto de las transiciones ε originales.
-3. Ambos autómatas reconocen el mismo lenguaje: todas las cadenas que contienen al menos una 'a'.
+1.  El NFA resultante **no tiene transiciones ε**.
+2.  El estado $q_0$ ahora puede transitar con 'b' a un conjunto de estados $\{q_0, q_1, q_2\}$, reflejando el efecto de las transiciones ε originales.
+3.  Ambos autómatas reconocen el mismo lenguaje: todas las cadenas que contienen al menos una 'a'.
 :::
 
 ### Verificación con Ejemplos de Cadenas
@@ -350,22 +491,22 @@ Para verificar la equivalencia, probemos algunas cadenas:
 
 **Cadena "a":**
 
-- **En ε-NFA:** $q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
-- **En NFA:** $q_0 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En ε-NFA:** $q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En NFA:** $q_0 \xrightarrow{a} q_3$ ✓ (Aceptada)
 
 **Cadena "ba":**
 
-- **En ε-NFA:** $q_0 \xrightarrow{b} q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
-- **En NFA:** $q_0 \xrightarrow{b} \{q_0, q_1, q_2\}$, luego desde $q_1$: $q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En ε-NFA:** $q_0 \xrightarrow{b} q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En NFA:** $q_0 \xrightarrow{b} \{q_0, q_1, q_2\}$, luego desde $q_1$: $q_1 \xrightarrow{a} q_3$ ✓ (Aceptada)
 
 **Cadena "bbb":**
 
-- **En ε-NFA:** $q_0 \xrightarrow{b} q_0 \xrightarrow{b} q_0 \xrightarrow{b} q_0$, no alcanza estado final ✗ (Rechazada)
-- **En NFA:** $q_0 \xrightarrow{b} \{q_0, q_1, q_2\} \xrightarrow{b} \{q_0, q_1, q_2\} \xrightarrow{b} \{q_0, q_1, q_2\}$, ninguno es final ✗ (Rechazada)
+-   **En ε-NFA:** $q_0 \xrightarrow{b} q_0 \xrightarrow{b} q_0 \xrightarrow{b} q_0$, no alcanza estado final ✗ (Rechazada)
+-   **En NFA:** $q_0 \xrightarrow{b} \{q_0, q_1, q_2\} \xrightarrow{b} \{q_0, q_1, q_2\} \xrightarrow{b} \{q_0, q_1, q_2\}$, ninguno es final ✗ (Rechazada)
 
 **Cadena "aba":**
 
-- **En ε-NFA:** $q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3 \xrightarrow{b} q_3 \xrightarrow{a} q_3$ ✓ (Aceptada)
-- **En NFA:** $q_0 \xrightarrow{a} q_3 \xrightarrow{b} q_3 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En ε-NFA:** $q_0 \xrightarrow{\epsilon} q_1 \xrightarrow{a} q_3 \xrightarrow{b} q_3 \xrightarrow{a} q_3$ ✓ (Aceptada)
+-   **En NFA:** $q_0 \xrightarrow{a} q_3 \xrightarrow{b} q_3 \xrightarrow{a} q_3$ ✓ (Aceptada)
 
 Ambos autómatas producen resultados idénticos, confirmando que $L(M) = L(M')$.
