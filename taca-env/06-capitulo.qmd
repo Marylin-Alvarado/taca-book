@@ -13,9 +13,6 @@ format:
 ---
 
 # Propiedades de Decisión para Lenguajes Regulares  
-*Autor: Christian Leonardo Robles Maza*  
-*Texto didáctico — Nivel avanzado (estilo profesor con años de experiencia)*
-
 Este documento presenta una explicación **profunda**, **detallada** y **estructurada** sobre tres propiedades de decisión fundamentales para los **lenguajes regulares** y sus autómatas asociados:
 
 1. **¿El lenguaje aceptado es vacío?**
