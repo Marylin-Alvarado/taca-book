@@ -24,6 +24,8 @@ A continuación se reconocen las contribuciones de quienes participaron en la cr
 
 Sus observaciones y sugerencias fueron esenciales para asegurar la precisión técnica y la claridad expositiva.
 
+-   **Christian Leonardo Robles Maza** – Autor del Capítulo 6: "Propiedades de Decisión para Lenguajes Regulares"; aportó explicaciones, pseudocódigo y ejemplos ilustrativos usados en el capítulo.
+
 ------------------------------------------------------------------------
 
 ## Estudiantes participantes
