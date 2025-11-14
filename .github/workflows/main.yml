@@ -9,6 +9,11 @@ jobs:
   build-and-check:
     runs-on: ubuntu-latest
 
+    # Todo lo que se ejecute en "run:" usará taca-env como carpeta base
+    defaults:
+      run:
+        working-directory: taca-env
+
     steps:
       # 1. Descargar el código del repositorio
       - name: Checkout repo
