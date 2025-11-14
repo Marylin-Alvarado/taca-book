@@ -1,8 +1,8 @@
-name: Deploy Quarto Book to GitHub Pages
+name: CD GitHub Pages
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
 
 permissions:
   contents: read
