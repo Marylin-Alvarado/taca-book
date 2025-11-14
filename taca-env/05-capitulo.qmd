@@ -1,70 +1,8 @@
-title: "Propiedades y Operaciones de Lenguajes Regulares"
+title: "Algoritmos de Minimización de AFDs"
 author: "Marylin Alvarado"
 format: html
 toc: true
 ---
-
-## 5. Propiedades y Operaciones de Lenguajes Regulares
-
-Aquí se analizan las características inherentes de la familia de lenguajes regulares, demostrando cómo se pueden combinar y optimizar.
-***
-
-### 5.1 Propiedades de Clausura de Lenguajes Regulares
-
-Las **propiedades de clausura** de los lenguajes regulares establecen que si tomamos uno o más lenguajes regulares y aplicamos una operación específica (como unión, concatenación o intersección), el lenguaje resultante también será un lenguaje regular. Los Autómatas Finitos Deterministas (**AFD**) son fundamentales para demostrar estas propiedades mediante la construcción de nuevos autómatas.
-
-#### Concepto de Clausura con AFDs
-
-La demostración de la clausura se realiza construyendo un nuevo AFD, $A_{nuevo}$, a partir de los AFDs originales, $A_1$ y $A_2$, de tal manera que $L(A_{nuevo})$ sea el resultado de la operación aplicada a $L(A_1)$ y $L(A_2)$. Esta construcción se conoce comúnmente como la **Construcción Producto**.
-
-#### Unión ($\cup$)
-
-* **Operación:** $L(A_1) \cup L(A_2)$
-* **Demostración con AFDs (Construcción Producto):**
-    * Se construye un nuevo AFD cuyos estados son **pares ordenados** $(q_1, q_2)$, donde $q_1$ es un estado de $A_1$ y $q_2$ es un estado de $A_2$.
-    * Un estado $(q_1, q_2)$ es un **estado final** en el nuevo AFD si al menos uno de los estados originales es final, es decir, si $q_1 \in F_1$ **o** $q_2 \in F_2$.
-* **Conclusión:** Los lenguajes regulares son cerrados bajo la **unión**.
-
-#### Concatenación ($\cdot$)
-
-* **Operación:** $L(A_1) \cdot L(A_2)$
-* **Demostración con AFDs:** Aunque se puede demostrar con AFDs, es más complejo que en AFNDs. En la práctica, se utiliza el hecho de que los AFNDs son equivalentes a los AFDs. La demostración mediante AFNDs ($\epsilon$-transiciones) es más sencilla y directa.
-* **Conclusión:** Los lenguajes regulares son cerrados bajo la **concatenación**.
-
-#### Intersección ($\cap$)
-
-* **Operación:** $L(A_1) \cap L(A_2)$
-* **Demostración con AFDs (Construcción Producto):** Se utiliza la misma **construcción producto** de estados $(q_1, q_2)$.
-    * Un estado $(q_1, q_2)$ es un **estado final** en el nuevo AFD si **ambos** estados originales son finales, es decir, si $q_1 \in F_1$ **y** $q_2 \in F_2$.
-* **Conclusión:** Los lenguajes regulares son cerrados bajo la **intersección**.
-
-***
-
-### 5.2 Operaciones de Clausura en NFAs
-
-La demostración de las propiedades de clausura para los lenguajes regulares (Unión, Concatenación y Clausura de Kleene) es más sencilla y elegante utilizando **Autómatas Finitos No Deterministas (AFND)**, especialmente con el uso de las $\epsilon$-transiciones. La flexibilidad del no-determinismo permite "unir" los autómatas de manera eficiente sin explosionar el número de estados de forma inmediata.
-
-#### Clausura de Kleene (Estrella) ($\star$)
-
-* **Definición:** $L^{\star} = L^0 \cup L^1 \cup L^2 \cup \dots$
-* **Demostración con AFNDs:**
-    1.  Se añade un **nuevo estado inicial/final** $q_{nuevo}$.
-    2.  Se añade una **$\epsilon$-transición** desde $q_{nuevo}$ al antiguo estado inicial de $A$ (para comenzar la primera iteración o la única).
-    3.  Se añaden **$\epsilon$-transiciones** desde cada estado final de $A$ de vuelta a $q_{nuevo}$ (o al antiguo estado inicial de $A$) para permitir la repetición (la estrella).
-    4.  El estado $q_{nuevo}$ acepta $\epsilon$ (la cadena vacía), que es parte de $L^0$.
-* **Ventaja sobre AFDs:** Un AFD requeriría un mecanismo mucho más complejo (y a menudo más grande) para manejar los puntos de repetición y la posible vuelta al estado inicial después de cada aceptación.
-
-#### Concatenación ($\cdot$)
-
-* **Definición:** $L(A_1) \cdot L(A_2)$
-* **Demostración con AFNDs:**
-    1.  Se mantiene el estado inicial de $A_1$ como el nuevo estado inicial.
-    2.  Se añaden **$\epsilon$-transiciones** desde todos los estados finales de $A_1$ hacia el estado inicial de $A_2$.
-    3.  Los estados finales de $A_1$ dejan de ser finales.
-    4.  Los estados finales de $A_2$ se convierten en los nuevos estados finales.
-* **Ventaja sobre AFDs:** El AFND simplemente "conecta" el final del primer autómata con el inicio del segundo sin la necesidad de construir un producto que simule todas las combinaciones posibles de estados intermedios.
-
-***
 
 ### 5.3 Algoritmos de Minimización de AFDs
 
