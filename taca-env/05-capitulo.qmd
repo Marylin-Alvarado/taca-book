@@ -112,7 +112,8 @@ El AFND-ε permite construcciones lineales o polinomiales en muchas operaciones,
 
 El AFND-ε actúa como una estructura composicional que traduce expresiones regulares complejas a autómatas mediante reglas locales, simples y modulares. Para la concatenación y la clausura, estas reglas requieren pocos estados y transiciones; por el contrario, la construcción equivalente en AFD es más compleja, rígida y potencialmente exponencial en tamaño.
 
-```
+---
+
 ## 5.6 Propiedades de Clausura de Lenguajes Regulares
 
 Una de las propiedades más importantes de los Lenguajes Regulares (LR) es su clausura bajo un conjunto de operaciones. Esto significa que si tomamos uno o más lenguajes que sabemos que son regulares, y aplicamos una de estas operaciones (como unión, intersección o concatenación), el lenguaje resultante siempre será también un lenguaje regular.
