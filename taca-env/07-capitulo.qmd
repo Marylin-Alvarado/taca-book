@@ -211,3 +211,142 @@ Flex incluye mecanismos como:
 -   Permite análisis léxicos robustos para lenguajes complejos.
 
 -   Es la herramienta estándar en cursos universitarios de compiladores.
+
+# Aplicaciones en Verificación de Software y Hardware (Model Checking)
+
+El **model checking** es una técnica de verificación formal que permite comprobar automáticamente si un modelo de sistema satisface determinadas especificaciones, detectando errores sin intervención humana directa.
+Es especialmente útil en sistemas complejos donde probar manualmente todos los casos de ejecución sería imposible.
+
+Los autómatas son adecuados para esta tarea debido a que:
+
+* Representan infinitos comportamientos del sistema.
+* Permiten operaciones automáticas de combinación, comparación y complementación.
+* Existen algoritmos eficientes para manipularlos.
+
+---
+
+# Tipos de Propiedades que se Pueden Verificar
+
+## 1. Propiedades de Seguridad (Safety)
+
+**Significado:**
+“Nada malo debe pasar”.
+El sistema nunca debe alcanzar un estado peligroso o incorrecto.
+
+**Ejemplos:**
+
+* El semáforo nunca muestra rojo y verde al mismo tiempo.
+* Un proceso nunca accede a memoria que no le pertenece.
+* Dos trenes nunca están en la misma sección de vía.
+
+**Cómo se verifica:**
+
+1. Se construye un autómata que detecte los estados prohibidos (“estados malos”).
+2. Se verifica que el sistema nunca puede llegar a dichos estados.
+
+---
+
+## 2. Propiedades de Actividad (Liveness)
+
+**Significado:**
+“Algo bueno eventualmente va a pasar”.
+El sistema no debe quedar bloqueado para siempre.
+
+**Ejemplos:**
+
+* Si presionas el botón del ascensor, eventualmente llegará.
+* Si un proceso pide un recurso, tarde o temprano lo obtiene.
+* El sistema no se queda congelado o esperando indefinidamente.
+
+Estas propiedades requieren analizar ejecuciones infinitas, por lo que se emplean **autómatas de Büchi**.
+
+---
+
+# Uso de Autómatas de Büchi
+
+Los autómatas de Büchi procesan **palabras infinitas** y son esenciales en la verificación de propiedades de actividad (liveness) en sistemas reactivos.
+
+## Ámbitos de aplicación
+
+| Ámbito                    | Aplicación                              | Ejemplo de propiedad crítica                                   |
+| ------------------------- | --------------------------------------- | -------------------------------------------------------------- |
+| Sistemas embebidos        | Control de sensores, microcontroladores | “La temperatura nunca excede el umbral sin activar la alarma.” |
+| Sistemas ciberfísicos     | Interacción con entorno físico          | “El dron nunca pierde conexión en vuelo.”                      |
+| Automatización industrial | Robots, PLCs                            | “La máquina no opera con el escudo abierto.”                   |
+| Transporte autónomo       | Trenes, autos, aviones                  | “Dos vehículos no ocupan el mismo carril.”                     |
+| Sistemas financieros      | Transacciones                           | “Una transacción no debe duplicarse.”                          |
+| Comunicación              | Protocolos, redes                       | “Un paquete no se entrega sin autenticación.”                  |
+| Sistemas distribuidos     | Recursos compartidos                    | “Un recurso no es accedido simultáneamente.”                   |
+| Sistemas médicos          | Bombas, monitores                       | “El desfibrilador no se activa sin ritmo cardíaco.”            |
+| Control aéreo             | Radar, seguimiento                      | “Dos aviones nunca entran en conflicto.”                       |
+| Sistemas administrativos  | Gestión de casos                        | “Un expediente no se modifica sin trazabilidad.”               |
+
+---
+
+# Criterio de Aceptación en Autómatas de Büchi
+
+Una palabra infinita es aceptada si **un estado de aceptación es visitado infinitas veces**.
+
+No basta con llegar una sola vez: debe repetirse permanentemente.
+
+## Ejemplo: “Semáforo seguro”
+
+### Secuencia aceptada (correcta)
+
+```
+rojo → verde → amarillo → rojo → verde → amarillo → ...
+```
+
+El estado `q_verde` ocurre infinitamente ⇒ la propiedad se cumple.
+
+### Secuencia no aceptada (incorrecta)
+
+```
+rojo → amarillo → rojo → amarillo → ...
+```
+
+El verde nunca aparece ⇒ comportamiento inseguro.
+
+---
+
+# Utilidad del Criterio de Büchi
+
+El criterio de Büchi exige que al menos un estado aceptador sea visitado **infinitas veces**.  
+Esto permite verificar propiedades que deben cumplirse de manera permanente a lo largo de una ejecución infinita.  
+Entre ellas se incluyen:
+
+* Respuesta continua del sistema.
+* Liberación recurrente de recursos.
+* Retorno periódico a un estado seguro.
+* Prevención de ciclos de bloqueo permanente.
+
+---
+
+# Proceso de Verificación Automática
+
+El procedimiento estándar de verificación mediante autómatas de Büchi suele desarrollarse a través de las siguientes etapas:
+
+1. **Modelar el sistema como un autómata de Büchi.**  
+   Se representa el comportamiento del sistema mediante un autómata que capture todas sus ejecuciones posibles.
+2. **Traducir la propiedad deseada** (por ejemplo, “nunca hay bloqueo”) **a una fórmula en Lógica Temporal Lineal (LTL).**  
+   Esta fórmula expresa formalmente la condición que se desea verificar sobre el sistema.
+3. **Construir el autómata complementario que acepta las ejecuciones que violan la propiedad.**  
+   A partir de la fórmula LTL, se genera un autómata que describa exactamente los comportamientos no permitidos.
+4. **Calcular el producto entre el autómata del sistema y el autómata de la propiedad.**  
+   El producto sincronizado permite identificar si existe una ejecución conjunta que satisfaga el comportamiento del sistema y, a la vez, viole la propiedad.
+5. **Buscar ejecuciones aceptadas.**  
+   * Si existen: la propiedad **se viola**.
+   * Si no existen: la propiedad **se cumple** para todas las ejecuciones.
+
+---
+
+# Herramientas Basadas en Autómatas de Büchi
+
+1. **SPIN:** Especializada en la verificación de sistemas concurrentes y protocolos de comunicación.
+2. **NuSMV:** Herramienta para verificación de modelos finitos con soporte para LTL y CTL.
+3. **UPPAAL:** Orientada a sistemas temporizados y de tiempo real mediante autómatas temporizados.
+4. **PRISM:** verificación probabilística de sistemas estocásticos.
+
+---
+
+

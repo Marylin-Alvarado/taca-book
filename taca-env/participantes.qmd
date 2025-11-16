@@ -23,6 +23,8 @@ A continuación se reconocen las contribuciones de quienes participaron en la cr
 -   **Nombre Apellido 3** – Colaboración en la redacción inicial de los capítulos sobre máquinas de Turing y problemas indecidibles.
 -   **Jostin Jimenez - jostin.jimenez\@unl.edu.ec** - Eliminación de Transiciones ε en Autómatas Finitos
 -   **Darwin Sarango - darwin.a.sarango\@unl.edu.ec** - Aplicación Práctica: Análisis Léxico en Compiladores
+-   **Estefania Torres - estefania.torres\@unl.edu.ec**- Aplicaciones en Verificación de Software y Hardware (Model Checking)
+
 
 Sus observaciones y sugerencias fueron esenciales para asegurar la precisión técnica y la claridad expositiva.
 
