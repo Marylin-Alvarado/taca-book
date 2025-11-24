@@ -13,7 +13,7 @@ nocite: "@*"
 Un DFA se define formalmente como una 5–tupla:
 
 \[
-M = (Q, \Sigma, \delta, q_0, F)
+M = (Q, Σ, δ, q_0, F)
 \]
 
 donde:
@@ -21,14 +21,14 @@ donde:
 * **\(Q\)** → *Conjunto de estados:* Es un conjunto finito de estados.  
   **Ejemplo:** \(Q = \{q_0, q_1\}\)
 
-* **\(\Sigma\)** → *Alfabeto:* Conjunto de símbolos permitidos.  
-  **Ejemplo:** \(\Sigma = \{0, 1\}\)
+* **\(\Σ\)** → *Alfabeto:* Conjunto de símbolos permitidos.  
+  **Ejemplo:** \(\Σ = \{0, 1\}\)
 
-* **\(\delta\)** → *Función de transición:* Indica a qué estado se va dependiendo del estado actual.  
+* **\(\δ\)** → *Función de transición:* Indica a qué estado se va dependiendo del estado actual.  
   \[
   \delta: Q \times \Sigma \rightarrow Q
   \]  
-  **Ejemplo:** \(\delta(q_0, 1) = q_1\)
+  **Ejemplo:** \(\δ(q_0, 1) = q_1\)
 
 * **\(q_0\)** → *Estado inicial:* El estado donde empieza la máquina.  
   **Ejemplo:** \(q_0 = q_0\)
@@ -64,4 +64,3 @@ Reglas clave:
 
 * Al leer un **1**, el DFA **cambia de estado** (alterna entre par e impar).  
 * Al leer un **0**, el DFA **permanece en el mismo estado**, ya que no afecta la paridad.
-
