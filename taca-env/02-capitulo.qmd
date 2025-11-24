@@ -7,3 +7,267 @@ toc: true
 bibliography: references.bib
 nocite: "@*"
 ---
+---
+title: "2.1 DFAs minimales"
+subtitle: "Lenguajes residuales, autómata canónico y master automaton"
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+---
+
+# 2.1 DFAs minimales (introducción)
+
+## Motivación
+
+- Un **DFA** (autómata finito determinista) puede reconocer un lenguaje usando más estados de los necesarios.
+- Un **DFA minimal** es aquel que:
+  - reconoce el mismo lenguaje que cualquier otro DFA equivalente, y  
+  - tiene el **menor número posible de estados**.
+- Todo lenguaje regular tiene un DFA minimal, y este es **único salvo renombrar estados**  
+  (es decir, todos los DFAs minimales para un mismo lenguaje son isomorfos).
+
+---
+
+## Lenguajes residuales
+
+Sea \(L \subseteq \Sigma^{*}\) un lenguaje y \(w \in \Sigma^{*}\) una palabra.
+
+- El **residual de \(L\) respecto a \(w\)** (también llamado *cociente izquierdo*) es:
+  \[
+  L_w = \{\, u \in \Sigma^{*} \mid wu \in L \,\}.
+  \]
+
+**Intuición:**  
+\(L_w\) contiene todos los sufijos que, pegados detrás de \(w\), dan una palabra de \(L\).
+
+**Propiedad clave:**
+
+- Para todo \(u\), se cumple:
+  \[
+  wu \in L \quad \text{ssi} \quad u \in L_w.
+  \]
+- El residual \(L_w\) es el **único** lenguaje que cumple esa propiedad para la palabra \(w\).
+
+---
+
+### Ejemplo 1: lenguaje finito
+
+Sea \(\Sigma = \{a,b\}\) y \(L = \{a,ab,ba,aab\}\).
+
+Algunos residuales:
+
+- \(L_{\varepsilon} = L = \{a,ab,ba,aab\}\).
+- \(L_{a} = \{\varepsilon, b, ab\}\)  
+  (son los sufijos que, pegados tras una \(a\), dan palabras de \(L\)).
+- \(L_{b} = \{a\}\).
+- \(L_{aa} = \{b\}\).
+- \(L_{ab} = \{\varepsilon\}\).
+- \(L_{ba} = \{\varepsilon\}\).
+- \(L_{bb} = \varnothing\).
+
+A partir de cierta longitud, casi todos los residuales son \(\varnothing\), salvo el correspondiente a \(aab\), cuyo residual es \(\{\varepsilon\}\).
+
+En total, este lenguaje tiene **seis residuales distintos**:
+\[
+L,\ \{\varepsilon, b, ab\},\ \{a\},\ \{b\},\ \{\varepsilon\},\ \varnothing.
+\]
+
+---
+
+### Ejemplo 2: lenguaje con una sola clase residual
+
+Para el lenguaje \(L = (a+b)^{*}\) (todas las palabras sobre \(\{a,b\}\)):
+
+- Para cualquier \(w\), el residual \(L_w\) vuelve a ser todo \((a+b)^{*}\).
+- Solo hay **un residual** distinto.
+
+---
+
+### Ejemplo 3: paridad de letras
+
+Sea \(L\) el conjunto de palabras con **número par de \(a\)** y **número par de \(b\)**.
+
+- Hay cuatro residuales, según la paridad de cada letra:
+  - \(EE\): par en \(a\) y par en \(b\).
+  - \(EO\): par en \(a\) e impar en \(b\).
+  - \(OE\): impar en \(a\) y par en \(b\).
+  - \(OO\): impar en \(a\) e impar en \(b\).
+
+Cada residual corresponde a una combinación de paridades; al leer una \(a\) o una \(b\), se cambia de residual según se altere la paridad de esa letra.  
+Esos cuatro residuales forman el DFA minimal de este lenguaje.
+
+---
+
+### Ejemplo 4: lenguajes con infinitos residuales
+
+Hay lenguajes (no regulares) cuyo número de residuales es **infinito**, por ejemplo:
+
+- \(L_1 = \{ a^{n} b^{n} : n \ge 0 \}\).
+- \(L_2 = \{ ww : w \in \{0,1\}^{*} \}\).
+
+En ambos casos se puede construir una familia infinita de palabras \(w_0, w_1, \dots\) tal que sus residuales \(L_{w_i}\) son todos distintos.  
+
+Esta es una de las ideas detrás del **teorema de Myhill–Nerode**:  
+los lenguajes con infinitos residuales no son regulares.
+
+---
+
+## Estados de un DFA y residuales
+
+Sea \(A = (Q, \Sigma, \delta, q_0, F)\) un autómata **determinista** (no necesariamente finito en esta sección).
+
+- Para cada estado \(q \in Q\), definimos el **lenguaje reconocido desde \(q\)**:
+  \[
+  L(q) = \{\, w \in \Sigma^{*} \mid A \text{ acepta } w \text{ empezando en } q \,\}.
+  \]
+- Si hay una transición \(q \xrightarrow{a} q'\), entonces:
+  \[
+  L(q') = \{ u \mid au \in L(q) \} = L(q)_a.
+  \]
+
+Suponiendo que \(A\) reconoce el lenguaje \(L = L(q_0)\), se cumple:
+
+::: {.callout-note}
+### Lema importante
+
+- (a) Para toda palabra \(w\), si \(q_w\) es el estado alcanzado desde \(q_0\) al leer \(w\), entonces  
+  \[
+  L(q_w) = L_w.
+  \]
+  Es decir, **todo residual** \(L_w\) de \(L\) es reconocido desde algún estado del DFA.
+- (b) Para cada estado \(q\) alcanzable desde \(q_0\), hay al menos una palabra \(w\) tal que \(L(q) = L_w\).
+:::
+
+**Conclusión:**  
+Los estados alcanzables de cualquier DFA que reconoce \(L\) corresponden a residuales del lenguaje.  
+Distintos estados pueden corresponder al mismo residual si el DFA no es minimal.
+
+---
+
+## Autómata determinista canónico
+
+A partir de los residuales se construye el **autómata canónico** de \(L\).
+
+### Definición (autómata canónico \(C_L\))
+
+Para un lenguaje \(L \subseteq \Sigma^{*}\), definimos:
+
+- Conjunto de estados:
+  \[
+  Q_L = \{ L_w : w \in \Sigma^{*} \}
+  \]
+  (el conjunto de **todos los residuales** de \(L\)).
+- Alfabeto: \(\Sigma\).
+- Transición:
+  \[
+  \delta_L(L_w, a) = L_{wa}.
+  \]
+- Estado inicial: \(q_0^L = L\) (el residual de la palabra vacía \(\varepsilon\)).
+- Estados de aceptación:
+  \[
+  F_L = \{ L_w \in Q_L : \varepsilon \in L_w \}.
+  \]
+
+En este autómata, **cada estado “reconoce su propio lenguaje”**:  
+el lenguaje aceptado al empezar en el estado \(L_w\) es precisamente \(L_w\).
+
+---
+
+### Propiedades del autómata canónico
+
+1. \(C_L\) reconoce exactamente el lenguaje \(L\).
+
+2. Si \(L\) es regular, entonces:
+   - El número de estados de \(C_L\) es igual al número de residuales distintos de \(L\).
+   - Cualquier DFA que reconozca \(L\) tiene **al menos** tantos estados como \(C_L\).
+   - Por tanto, \(C_L\) es un **DFA minimal**.
+
+3. **Unicidad:**  
+   Si \(A\) es otro DFA minimal que reconoce \(L\), sus estados se pueden emparejar uno a uno con los de \(C_L\) preservando:
+   - las transiciones,
+   - el estado inicial,
+   - y los estados de aceptación.
+
+   Es decir, \(A\) y \(C_L\) son **isomorfos**.
+
+---
+
+### Criterio práctico de minimalidad
+
+::: {.callout-tip}
+**Corolario:**  
+Un DFA (considerando solo sus estados alcanzables) es minimal **ssi** todos sus estados reconocen lenguajes distintos.  
+Es decir, si \(q \neq q'\), entonces \(L(q) \neq L(q')\).
+:::
+
+Este criterio se usa después para justificar algoritmos de minimización.
+
+---
+
+# 2.1.1 El Master Automaton
+
+## Idea general
+
+- El **master automaton** (autómata maestro) se define para un alfabeto fijo \(\Sigma\).
+- Es un DFA:
+  - con **infinitos estados**,
+  - sin estado inicial preseleccionado,
+  - donde **cada estado es un lenguaje regular** sobre \(\Sigma\).
+
+De forma intuitiva: contiene, como sub-autómatas, **todos** los DFAs minimales de todos los lenguajes regulares sobre \(\Sigma\).
+
+---
+
+## Definición formal
+
+Para un alfabeto \(\Sigma\), el **master automaton** es
+\[
+M = (Q_M, \Sigma, \delta_M, F_M),
+\]
+donde:
+
+- \(Q_M\) es el conjunto de **todos los lenguajes regulares** sobre \(\Sigma\).
+- La función de transición está dada por los residuales:
+  \[
+  \delta_M(L, a) = L_a
+  \quad\text{para todo } L \in Q_M,\; a \in \Sigma.
+  \]
+- El conjunto de estados de aceptación es:
+  \[
+  F_M = \{\, L \in Q_M \mid \varepsilon \in L \,\}.
+  \]
+- No se especifica un estado inicial único; en principio podemos “empezar” en cualquier lenguaje regular \(L\).
+
+---
+
+## Sub-autómatas canónicos dentro del master automaton
+
+Sea \(L\) un lenguaje regular sobre \(\Sigma\).
+
+Consideremos el subgrafo de \(M\) formado por:
+
+- el estado \(L\),
+- todos los estados alcanzables desde \(L\) leyendo palabras de \(\Sigma^{*}\),
+- y las transiciones entre esos estados.
+
+Por la definición de \(\delta_M\) y las propiedades de los residuales:
+
+- Ese subgrafo es **exactamente el DFA canónico \(C_L\)** del lenguaje \(L\).
+- Así, el master automaton **“contiene” todos los DFAs minimales** como sub-autómatas alcanzables.
+
+---
+
+## Ejemplo sobre \(\Sigma = \{a, b\}\)
+
+Para el alfabeto \(\{a,b\}\), el master automaton incluye estados como:
+
+- \(\varnothing\),
+- \(\Sigma^{*}\),
+- \(\Sigma \Sigma^{*}\) (todas las palabras de longitud al menos 1),
+- \(\varepsilon + \Sigma^{2}\Sigma^{*}\) (o bien la palabra vacía, o bien palabras de longitud al menos 2),
+- muchos otros lenguajes definidos por expresiones regulares.
+
+Las aristas etiquetadas con \(a\) o \(b\) conectan estos estados según el residual correspondiente.  
+Cada DFA minimal que conozcas sobre \(\{a,b\}\) aparece dentro de este master automaton como el subgrafo alcanzable desde el estado que representa su lenguaje.
