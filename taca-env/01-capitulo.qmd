@@ -1318,3 +1318,140 @@ Esparza, J., & Blondin, M. (2025). *Automata Theory: An Algorithmic Approach*. M
 Hopcroft, J. E., Motwani, R., & Ullman, J. D. (2006). *Introduction to Automata Theory, Languages, and Computation* (3rd ed.). Pearson.
 
 Sipser, M. (2012). *Introduction to the Theory of Computation* (3rd ed.). Cengage Learning.
+
+## 1.5: Un Tour de Conversiones
+
+Esta sección demuestra una cadena completa de conversiones entre diferentes representaciones de autómatas, mostrando cómo un lenguaje puede ser expresado de múltiples formas equivalentes.
+
+## Conceptos Clave
+
+### Lenguaje de Ejemplo
+El lenguaje trabajado en esta sección es:
+
+> Palabras sobre {a, b} con un **número par de a's** y un **número par de b's**
+
+### Cadena de Conversiones
+
+La sección presenta 4 conversiones principales:
+
+#### 1. DFA → Expresión Regular (via NFA-ε)
+
+**Punto de partida:** Un DFA de 4 estados que reconoce el lenguaje.
+
+**Proceso:** Aplicación del algoritmo NFA-εtoRE que:
+- Agrega estados inicial y final con transiciones ε
+- Elimina estados intermedios iterativamente
+- Etiqueta las transiciones con expresiones regulares
+
+**Resultado:** La expresión regular:
+```
+(aa + bb + (ab + ba)(aa + bb)*(ba + ab))*
+```
+
+::: {.callout-note}
+## Interpretación de la Expresión
+- `aa + bb`: dos letras iguales (mantiene paridad)
+- `(ab + ba)(aa + bb)*(ba + ab)`: cambia paridad de ambas letras
+- El `*` exterior permite repetir estos patrones
+:::
+
+#### 2. Expresión Regular → NFA-ε
+
+**Proceso:** Aplicación recursiva de tres reglas básicas:
+- Concatenación: conecta autómatas en secuencia
+- Unión (+): crea caminos paralelos con ε-transiciones
+- Clausura (*): crea ciclos con ε-transiciones
+
+**Resultado:** Un NFA-ε con 12 estados.
+
+#### 3. NFA-ε → NFA
+
+**Proceso:** Algoritmo NFA-εtoNFA que:
+- Elimina todas las ε-transiciones
+- Calcula clausuras ε para cada estado
+- Crea transiciones directas equivalentes
+
+**Resultado:** Un NFA sin transiciones ε.
+
+#### 4. NFA → DFA
+
+**Proceso:** Construcción por subconjuntos (powerset construction):
+- Cada estado del DFA representa un conjunto de estados del NFA
+- Las transiciones se calculan para conjuntos de estados
+
+**Resultado:** Un DFA de 7 estados (no el DFA original de 4 estados).
+
+## Observación Importante
+
+::: {.callout-warning}
+## Ciclo No Cerrado
+El DFA resultante reconoce el **mismo lenguaje** que el DFA inicial, pero tiene **más estados** (7 vs 4).
+
+Para cerrar el ciclo y volver al DFA mínimo, se necesita el algoritmo de **minimización de DFA** (presentado en el siguiente capítulo).
+:::
+
+## Diagrama de Flujo de Conversiones
+
+```{mermaid}
+flowchart LR
+    A[DFA inicial<br/>4 estados] --> B[Expresión Regular]
+    B --> C[NFA-ε<br/>12 estados]
+    C --> D[NFA<br/>12 estados]
+    D --> E[DFA final<br/>7 estados]
+    E -.minimización.-> A
+    
+    style A fill:#e1f5e1
+    style E fill:#ffe1e1
+    style B fill:#e1e5ff
+```
+
+## Ejercicios Relacionados
+
+### Ejercicio 1.1
+Trace el algoritmo NFA-εtoRE para el siguiente DFA simple:
+
+```
+Estados: {q0, q1}
+Alfabeto: {a, b}
+Transiciones: δ(q0,a) = q1, δ(q1,b) = q0
+Estado inicial: q0
+Estados finales: {q0}
+```
+
+### Ejercicio 1.2
+Construya el NFA-ε correspondiente a la expresión regular: `(a + b)*abb`
+
+### Ejercicio 1.3
+Aplique la construcción por subconjuntos al NFA:
+- Estados: {0, 1, 2}
+- δ(0,a) = {0,1}, δ(1,b) = {2}, δ(2,a) = {2}
+- Inicial: 0, Final: {2}
+
+### Ejercicio 1.4
+¿Por qué el DFA resultante en el ejemplo tiene más estados que el original? Explique qué propiedad se pierde en las conversiones.
+
+::: {.callout-tip}
+## Respuesta
+Las conversiones preservan el **lenguaje** pero no necesariamente la **minimalidad** del autómata. La construcción por subconjuntos puede generar estados redundantes.
+:::
+
+## Conceptos Matemáticos Importantes
+
+### Equivalencia de Representaciones
+Todas estas representaciones son **equivalentes**:
+$$\text{DFA} \equiv \text{NFA} \equiv \text{NFA-}\varepsilon \equiv \text{Expresión Regular}$$
+
+### Complejidad
+- **NFA-εtoRE**: puede generar expresiones de tamaño exponencial
+- **RE to NFA-ε**: lineal en el tamaño de la expresión
+- **Powerset construction**: puede generar $2^n$ estados
+
+## Referencias al Material
+
+- **Figura 1.21**: Representación compacta de expresiones regulares como grafos
+- **Figura 1.16**: Reglas de conversión de RE a NFA-ε (referenciada pero no mostrada)
+- **Siguiente capítulo**: Algoritmo de minimización de DFA
+
+---
+
+**Palabras clave:** DFA, NFA, NFA-ε, expresión regular, conversión, autómatas, lenguajes regulares, construcción por subconjuntos, minimización
