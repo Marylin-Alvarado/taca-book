@@ -582,18 +582,18 @@ Si dos estados `q1` y `q2` están en el mismo bloque de CSR, entonces para cada 
 Consiste en determinar si un autómata finito no determinista (NFA) puede ser reducido al menor número posible de estados sin cambiar el lenguaje que reconoce.
 Formalmente, dado un NFA  y un número , el problema consiste en decidir si existe otro NFA equivalente a  que tenga a lo sumo  estados.
 Este problema es PSPACE-completo, lo que implica que:
-•	Requiere una cantidad de memoria que crece de forma polinomial con el tamaño de la entrada.
-•	Es tan difícil como los problemas más complejos que pueden resolverse en espacio polinomial.
-•	No se conoce ningún algoritmo eficiente (en tiempo polinomial) para resolverlo en general.
-•	Es extremadamente difícil desde el punto de vista computacional.
+-	Requiere una cantidad de memoria que crece de forma polinomial con el tamaño de la entrada.
+-	Es tan difícil como los problemas más complejos que pueden resolverse en espacio polinomial.
+-	No se conoce ningún algoritmo eficiente (en tiempo polinomial) para resolverlo en general.
+-	Es extremadamente difícil desde el punto de vista computacional.
 Por ende, su dificultad radica en que al verificar la existencia de un NFA más pequeño equivalente requiere explorar una cantidad exponencial de posibles configuraciones de estados y transiciones, lo cual es intratable para entradas grandes.
 
 ### Características
-•	Mucho más difícil que minimizar un DFA
-•	No es viable construir siempre el NFA mínimo.
-•	No hay un método práctico que garantice obtener el NFA mínimo.
-•	El problema pertenece a PSPACE ya que se puede resolver usando memoria polinomial. Es decir, no necesita memoria infinita pero sí muchísima para casos grandes.
-•	La verificación usa un algoritmo no determinista, donde se adivina un NFA más pequeño aplicando la siguiente formula n ≤ k estados. Luego se verifica si es equivalente al original. Por ende, esta verificación es la parte costosa.
+-	Mucho más difícil que minimizar un DFA
+-	No es viable construir siempre el NFA mínimo.
+-	No hay un método práctico que garantice obtener el NFA mínimo.
+-	El problema pertenece a PSPACE ya que se puede resolver usando memoria polinomial. Es decir, no necesita memoria infinita pero sí muchísima para casos grandes.
+-	La verificación usa un algoritmo no determinista, donde se adivina un NFA más pequeño aplicando la siguiente formula n ≤ k estados. Luego se verifica si es equivalente al original. Por ende, esta verificación es la parte costosa.
 
 ### Comparación
 
@@ -618,7 +618,7 @@ Un lenguaje L es regular si y solo si tiene un número finito de residuales. El 
 
 ### Características
 
-• Un lenguaje es regular ⇔ tiene un número finito de residuales. • Condición única sin necesidad de autómatas: Es el único criterio que permite demostrar regularidad sin construir explícitamente un AFD o AFN. • Si un lenguaje posee infinitos residuales, entonces no es regular. • Cada estado de un DFA corresponde exactamente a un residual del lenguaje. • Muchos residuales distintos ⇒ muchos estados ⇒ si son infinitos ⇒ el lenguaje no puede ser regular. • Equivalencia con el Lema de Myhill-Nerode • Esta caracterización es una versión simplificada del teorema de Myhill-Nerode.
+- Un lenguaje es regular ⇔ tiene un número finito de residuales. - Condición única sin necesidad de autómatas: Es el único criterio que permite demostrar regularidad sin construir explícitamente un AFD o AFN. - Si un lenguaje posee infinitos residuales, entonces no es regular. - Cada estado de un DFA corresponde exactamente a un residual del lenguaje. - Muchos residuales distintos ⇒ muchos estados ⇒ si son infinitos ⇒ el lenguaje no puede ser regular. - Equivalencia con el Lema de Myhill-Nerode - Esta caracterización es una versión simplificada del teorema de Myhill-Nerode.
 
 ### Ejemplo 1 — Lenguaje no regular
 
