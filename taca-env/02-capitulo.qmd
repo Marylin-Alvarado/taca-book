@@ -8,7 +8,7 @@ bibliography: references.bib
 nocite: "@*"
 ---
 
-## 2.1 DFAs minimales (introducción)
+# 2.1 DFAs minimales (introducción)
 
 ## Motivación
 
@@ -231,7 +231,7 @@ Para el alfabeto ({a,b}), el master automaton incluye estados como:
 Las aristas etiquetadas con (a) o (b) conectan estos estados según el residual correspondiente.\
 Cada DFA minimal que conozcas sobre ({a,b}) aparece dentro de este master automaton como el subgrafo alcanzable desde el estado que representa su lenguaje.
 
-## 2.2 Minimización DFAs
+# 2.2 Minimización DFAs
 
 Cuando diseñamos un **Autómata Finito Determinista (DFA)**, a menudo terminamos con una máquina que tiene más "piezas" (estados) de las necesarias. Funciona bien, pero es redundante.
 
@@ -517,3 +517,65 @@ Para cada estado $q$ y letra $a$, el workset contiene **como máximo un splitter
 ## Resultado
 El bucle while se ejecuta $O(mn \log n)$ veces, y con una implementación cuidadosa (no trivial), el algoritmo completo ejecuta en tiempo $O(mn \log n)$.
 :::
+
+# 2.3 Reducción de NFAs (Autómatas Finitos No Deterministas)
+
+## Conceptos Principales
+
+### El Problema de la Minimización
+
+A diferencia de los DFAs (autómatas deterministas), **no existe un NFA mínimo único** para un lenguaje regular dado. Es más, encontrar cualquier NFA mínimo es un problema computacionalmente difícil (PSPACE-completo), lo que significa que probablemente no existe un algoritmo eficiente que lo resuelva.
+
+## 2.3.1 La Solución: Algoritmo de Reducción
+
+Aunque no podemos minimizar perfectamente, sí podemos **reducir el tamaño** de un NFA de manera eficiente usando una estrategia intermedia.
+
+## Cómo Funciona
+
+### Particiones y Refinamiento
+
+El algoritmo divide los estados del NFA en grupos (particiones) basándose en su comportamiento:
+
+1. **Inicialmente**: Separa estados finales de no finales
+2. **Iterativamente**: Refina estos grupos cuando encuentra estados que se comportan diferente
+
+### Definición de "Split" (División)
+
+Un par `(a, B')` divide un bloque `B` cuando:
+- Algunos estados en `B` tienen transiciones con `a` hacia estados en `B'`
+- Otros estados en `B` NO tienen tales transiciones
+
+Esto indica que esos estados se comportan diferente y deben separarse.
+
+### El Algoritmo CSR (Coarsest Stable Refinement)
+
+```
+1. Separar estados finales de no finales
+2. Mientras existan bloques que puedan dividirse:
+   - Buscar un bloque B que pueda dividirse
+   - Dividirlo en dos grupos:
+     * Estados que tienen la transición
+     * Estados que no la tienen
+3. Devolver la partición final
+```
+
+## Resultados Importantes
+
+- **Corrección**: El NFA reducido reconoce el mismo lenguaje que el original
+- **Limitación**: CSR no siempre encuentra el NFA más pequeño posible
+- **Estados diferentes pueden reconocer el mismo lenguaje** pero pertenecer a bloques distintos en CSR
+
+## Ejemplo Práctico
+
+En el ejemplo del texto, los estados 3 y 5 reconocen el mismo lenguaje: `(a+b)*aa(a+b)*`, pero CSR los mantiene en bloques separados porque tienen diferentes estructuras de transiciones.
+
+## Diferencia con DFAs
+
+- **DFAs**: CSR encuentra el autómata mínimo
+- **NFAs**: CSR solo encuentra una reducción, no necesariamente la mínima
+
+## Propiedad Adicional de CSR
+
+Si dos estados `q1` y `q2` están en el mismo bloque de CSR, entonces para cada símbolo `a` y cada sucesor `q'1` de `q1` por `a`, existe un sucesor `q'2` de `q2` por `a` tal que ambos sucesores reconocen el mismo lenguaje.
+
+---
