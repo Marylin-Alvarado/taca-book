@@ -537,3 +537,196 @@ Cuando eliminamos un estado *q_rip*, para cada par de estados (*q_i*, *q_j*) don
 4. Eliminar q₁: Simplificar
 
 **Resultado:** La expresión regular equivalente es `(a|b)*b`
+
+# 1.4.1 Algoritmo: De NFA a DFA
+
+# Definiciones y notación básica
+
+Sea un autómata finito no determinista con (posibles) transiciones ε:
+\(
+\mathcal{A} = (Q, \Sigma, \delta, q_0, F),
+\)
+donde:
+- \(Q\): conjunto finito de **estados**.
+- \(\Sigma\): **alfabeto** de entrada.
+- \(\delta: Q \times (\Sigma \cup \{\varepsilon\}) \to \mathcal{P}(Q)\): función de **transición** (posiblemente con ε).
+- \(q_0 \in Q\): **estado inicial**.
+- \(F \subseteq Q\): conjunto de **estados de aceptación**.
+
+Un **DFA** es \(\mathcal{A}' = (Q', \Sigma, \delta', q'_0, F')\) con:
+- \(Q' \subseteq \mathcal{P}(Q)\) (subconjuntos de \(Q\)).
+- \(\delta': Q' \times \Sigma \to Q'\) **total** (definida para todo par).
+- \(q'_0 = \varepsilon\text{-closure}(\{q_0\})\).
+- \(F' = \{S \in Q' \mid S \cap F \neq \varnothing\}\).
+
+**ε–cierre**: \(\varepsilon\text{-closure}(S)\) es el conjunto de estados alcanzables desde cualquiera en \(S\) usando solo transiciones ε (incluye \(S\)).
+
+# Algoritmo (Construcción de Subconjuntos)
+
+**Entrada:** NFA (o ε–NFA) \((Q,\Sigma,\delta,q_0,F)\).  
+**Salida:** DFA equivalente \((Q',\Sigma,\delta',q'_0,F')\).
+
+1. **Inicialización.**  
+   \(q'_0 \leftarrow \varepsilon\text{-closure}(\{q_0\})\). Encola \(q'_0\) como no procesado.  
+   \(Q' \leftarrow \{q'_0\}\), \(F' \leftarrow \emptyset\).
+
+2. **Bucle principal.** Mientras exista un subconjunto \(S \subseteq Q\) sin procesar:
+   1. Para cada símbolo \(a \in \Sigma\):
+      - \(U \leftarrow \varepsilon\text{-closure}\Big(\bigcup_{p \in S} \delta(p,a)\Big)\).
+      - Si \(U = \emptyset\), marca transición a **estado trampa** \( \bot \).  
+        (Si \( \bot \notin Q' \), añádelo y define \(\delta'(\bot,a)=\bot\) para todo \(a\).)
+      - Si \(U \notin Q'\), añade \(U\) a \(Q'\) y encola \(U\).
+      - Define \(\delta'(S,a)=U\) (o \(\bot\) si vacío).
+   2. Si \(S \cap F \neq \varnothing\), añade \(S\) a \(F'\).  
+   3. Marca \(S\) como procesado.
+
+3. **Resultado.** Devuelve \((Q',\Sigma,\delta',q'_0,F')\).
+
+## Comentarios prácticos
+
+- El **estado trampa** (dead state) asegura que \(\delta'\) sea **total**.  
+- En la implementación conviene **ordenar**/**congelar** subconjuntos (por ejemplo, como tuplas ordenadas) para compararlos y guardarlos en tablas o diccionarios.
+- El número de estados del DFA puede ser hasta \(2^{|Q|}\) en el peor caso; en la práctica, solo se generan los **accesibles** desde \(q'_0\).
+
+# Ejemplo trabajado
+
+Considere el ε–NFA que reconoce \(L = \{\,ab^*\,\} \cup \{\,ba^*\,\}\) sobre \(\Sigma=\{a,b\}\). Una especificación posible (sin ε para simplificar) es:
+
+- \(Q=\{0,1,2,3,4\}\), \(q_0=0\), \(F=\{2,4\}\).
+- Transiciones:
+  - Desde 0 con **a** → {1}; desde 1 con **b** → {1,2}; (1 acepta si luego llega a 2 por b-que-finaliza).
+  - Desde 0 con **b** → {3}; desde 3 con **a** → {3,4}.
+
+Tabla de construcción (borrador ilustrativo):
+
+| Conjunto \(S\) | con **a** | con **b** | ¿Acepta? |
+|---|---|---|---|
+| {0} | {1} | {3} | No |
+| {1} | ∅ | {1,2} | **Depende** (si incluye 2) |
+| {3} | {3,4} | ∅ | **Depende** (si incluye 4) |
+| {1,2} | ∅ | {1,2} | **Sí** |
+| {3,4} | {3,4} | ∅ | **Sí** |
+| ∅ → **trampa** | trampa | trampa | No |
+
+La partición de aceptación surge porque todo subconjunto que contenga 2 o 4 es aceptante.
+
+> Puedes rehacer este ejemplo con tu propio NFA/ε–NFA y seguir el algoritmo para obtener la tabla definitiva del DFA (con nombres de estado renombrados A, B, C, … si lo prefieres).
+
+# Pseudocódigo
+
+```text
+function subset_construction(NFA):
+    Q, Sigma, delta, q0, F = NFA
+    start = eps_closure({q0})
+    work = queue([start])
+    Qp = {start}
+    Fp = {}
+    for each a in Sigma: delta_p[trap][a] = trap  # define trampa
+
+    while work not empty:
+        S = work.pop()
+        if S ∩ F ≠ ∅: Fp.add(S)
+        for a in Sigma:
+            U = eps_closure( ⋃_{p∈S} delta(p, a) )
+            if U = ∅:
+                delta_p[S][a] = trap
+            else:
+                if U not in Qp: Qp.add(U); work.push(U)
+                delta_p[S][a] = U
+
+    return (Qp, Sigma, delta_p, start, Fp)
+```
+
+# Implementación de referencia (Python)
+
+```python
+from collections import deque, defaultdict
+
+def eps_closure(states, delta_eps):
+    # delta_eps: dict[state] -> set[states] of epsilon-transitions
+    stack = list(states)
+    seen = set(states)
+    while stack:
+        s = stack.pop()
+        for t in delta_eps.get(s, set()):
+            if t not in seen:
+                seen.add(t)
+                stack.append(t)
+    return frozenset(seen)
+
+def nfa_to_dfa(Q, Sigma, delta, delta_eps, q0, F):
+    # delta: dict[(state, symbol)] -> set[states]
+    start = eps_closure({q0}, delta_eps)
+    trap = frozenset()  # represent trampa como vacío
+    dfa_delta = {}
+    Qp = set([start])
+    Fp = set()
+    work = deque([start])
+
+    while work:
+        S = work.popleft()
+        if any(s in F for s in S):
+            Fp.add(S)
+        for a in Sigma:
+            # mover con 'a' y luego epsilon-cierre
+            next_states = set()
+            for p in S:
+                next_states |= delta.get((p, a), set())
+            U = eps_closure(next_states, delta_eps)
+            if len(U) == 0:
+                dfa_delta[(S, a)] = trap
+            else:
+                dfa_delta[(S, a)] = U
+                if U not in Qp:
+                    Qp.add(U)
+                    work.append(U)
+
+    # completar función total agregando lazo en trampa
+    for a in Sigma:
+        dfa_delta[(trap, a)] = trap
+
+    return Qp, Sigma, dfa_delta, start, Fp
+
+# Ejemplo mínimo sin epsilon (delta_eps vacío)
+Q = {0,1,2,3,4}
+Sigma = {'a','b'}
+delta = {
+    (0,'a'):{1}, (1,'b'):{1,2},
+    (0,'b'):{3}, (3,'a'):{3,4},
+}
+delta_eps = {}  # sin epsilon
+q0 = 0
+F = {2,4}
+
+Qp, Sigma, dfa_delta, start, Fp = nfa_to_dfa(Q,Sigma,delta,delta_eps,q0,F)
+
+# Muestra legible
+def name(S):
+    return "∅" if len(S)==0 else "{" + ",".join(map(str,sorted(S))) + "}"
+
+print("Estado inicial DFA:", name(start))
+print("Estados de aceptación:", [name(S) for S in Fp])
+print("\nTransiciones DFA:")
+for (S,a),U in sorted(dfa_delta.items(), key=lambda x:(sorted(list(x[0][0])) if x[0][0] else [-1], x[0][1])):
+    print(f" δ({name(S)}, {a}) = {name(U)}")
+```
+
+# Complejidad
+
+- **Tiempo:** en el peor caso \(O(2^{|Q|} \cdot |\Sigma| \cdot |Q|)\) debido a exploración de subconjuntos y cálculos de ε–cierre.
+- **Espacio:** hasta \(O(2^{|Q|})\) estados; en práctica, suele ser mucho menor si el NFA es esparso.
+
+# Buenas prácticas
+
+- Normaliza nombres de estados del DFA para reportes (A, B, C, …).
+- Implementa **minimización de DFA** después de la construcción para reducir estados.
+- Escribe pruebas con **cadenas test** y comprueba aceptación en ambos autómatas.
+
+# Ejercicios propuestos
+
+1. Convierte a DFA un ε–NFA para el lenguaje de cadenas sobre \(\{0,1\}\) que contienen **al menos un 1**.
+2. Repite el ejemplo de \(\{ab^*\} \cup \{ba^*\}\) pero con un diseño de NFA alternativo, y verifica que ambos DFA aceptan el mismo lenguaje.
+3. Agrega ε–transiciones a tu NFA y verifica que el resultado del DFA sea equivalente (usa ε–cierre).
+4. Minimiza el DFA obtenido y compara el número de estados.
+
+
