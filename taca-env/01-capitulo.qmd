@@ -130,3 +130,113 @@ La sección incluye un DFA concreto:
   Una vez que entras allí, la palabra queda automáticamente rechazada.  
   Aunque existe, a veces no se dibuja en los diagramas por simplicidad.
 
+## 1.3.2 DFAs como estructuras de datos
+
+Los **Autómatas Finitos Deterministas (DFAs)** son modelos matemáticos utilizados para representar sistemas capaces de reconocer patrones en cadenas de símbolos. Aunque provienen de la teoría de lenguajes formales, también se consideran **estructuras de datos**, ya que almacenan información de forma organizada para procesar entradas paso a paso siguiendo reglas definidas.
+
+Desde una perspectiva computacional, un DFA es una **estructura compuesta por elementos finitos y relaciones internas**, diseñada para describir comportamientos secuenciales.
+
+---
+
+## Componentes fundamentales de un DFA
+
+### ✔ 1. Estados  
+Un DFA contiene un conjunto finito de **estados**, cada uno representando una situación del sistema.  
+Como estructura de datos, los estados funcionan como **nodos etiquetados** que permiten recordar:
+
+- qué símbolos se han procesado,
+- en qué condición se encuentra la máquina.
+
+---
+
+### ✔ 2. Alfabeto  
+El alfabeto es el conjunto finito de símbolos válidos como entrada.  
+Actúa como un dominio de valores permitido, limitando la complejidad del procesamiento.
+
+---
+
+### ✔ 3. Estado inicial  
+Es el punto de partida de la máquina.  
+Desde la perspectiva de estructura de datos, equivale a un **nodo raíz** o a una variable inicializada.
+
+---
+
+### ✔ 4. Estados de aceptación  
+Son estados marcados como "válidos".  
+Determinan si la cadena procesada es **aceptada** o **rechazada** al finalizar.
+
+---
+
+### ✔ 5. Función de transición  
+La función de transición especifica:
+
+> “Si estoy en el estado X y leo el símbolo Y, voy al estado Z”.
+
+Como estructura de datos puede representarse mediante:
+
+- tablas,
+- grafos dirigidos,
+- diccionarios (clave → valor),
+- listas de adyacencia.
+
+Es el mecanismo que almacena las reglas de movimiento.
+
+
+# 1.3.2.1 Por qué un DFA es una estructura de datos
+
+### 🔹 1. Almacenamiento organizado  
+Un DFA guarda:
+
+- estados,
+- símbolos,
+- transiciones,
+- estados finales.
+
+Todo su diseño es estructural: define cómo se organiza y consulta la información.
+
+
+### 🔹 2. Operaciones definidas  
+La operación principal del DFA es:
+
+> Procesar una cadena símbolo por símbolo.
+
+Equivale a recorrer:
+
+- un grafo,
+- una tabla,
+- un mapa de transiciones.
+
+
+### 🔹 3. Acceso eficiente  
+Cada transición se ejecuta en **O(1)**:  
+para cada par *(estado, símbolo)* hay un único destino.
+
+Esto los hace ideales para:
+
+- analizadores léxicos,
+- validadores,
+- reconocimiento rápido de patrones.
+
+
+### 🔹 4. Múltiples representaciones internas  
+Un DFA puede almacenarse como:
+
+- matriz de transición,
+- tabla hash,
+- lista de adyacencia,
+- json/yaml,
+- clases de programación (Java, Python, etc.).
+
+Esto evidencia que también es una **estructura de datos**.
+
+
+# 1.3.2.2 Interpretación computacional
+
+Desde el punto de vista computacional, un DFA es una **máquina que interpreta datos** mediante una estructura fija.
+
+La máquina:
+
+1. Recibe símbolos.
+2. Recorre su estructura interna (estados y transiciones).
+3. Mantiene solo una memoria finita (el estado actual).
+4. Produce una salida binaria: *Aceptar* o *Rechazar*.
