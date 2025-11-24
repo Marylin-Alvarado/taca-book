@@ -182,7 +182,7 @@ Como estructura de datos puede representarse mediante:
 Es el mecanismo que almacena las reglas de movimiento.
 
 
-# 1.3.2.1 Por qué un DFA es una estructura de datos
+### 1.3.2.1 Por qué un DFA es una estructura de datos
 
 ### 🔹 1. Almacenamiento organizado  
 Un DFA guarda:
@@ -230,7 +230,7 @@ Un DFA puede almacenarse como:
 Esto evidencia que también es una **estructura de datos**.
 
 
-# 1.3.2.2 Interpretación computacional
+### 1.3.2.2 Interpretación computacional
 
 Desde el punto de vista computacional, un DFA es una **máquina que interpreta datos** mediante una estructura fija.
 
@@ -242,7 +242,7 @@ La máquina:
 4. Produce una salida binaria: *Aceptar* o *Rechazar*.
 
 
-## 1.3.3 Autómatas Finitos No Deterministas (AFND)
+### 1.3.3 Autómatas Finitos No Deterministas (AFND)
 
 Hasta ahora hemos trabajado con Autómatas Finitos Deterministas (AFD), donde las reglas son estrictas: para cada estado y cada símbolo existe un único camino a seguir. Sin embargo, los lenguajes más complejos suelen requerir mayor flexibilidad. Aquí es donde aparece el no determinismo.
 
@@ -314,7 +314,7 @@ $$
 
 ------------------------------------------------------------------------
 
-## 1.3.4 Autómatas Finitos No Deterministas con $\epsilon$-Transiciones ($\epsilon$-AFND)
+### 1.3.4 Autómatas Finitos No Deterministas con $\epsilon$-Transiciones ($\epsilon$-AFND)
 
 Si el AFND nos dio libertad para elegir caminos, el $\epsilon$-AFND añade un “superpoder”: la capacidad de moverse sin consumir ningún símbolo de entrada.
 
@@ -360,7 +360,7 @@ La $\epsilon$-cerradura de un estado $q$ es el conjunto de todos los estados acc
 Este concepto es crucial para eliminar $\epsilon$-transiciones y convertir un $\epsilon$-AFND en un AFND estándar.
 
 
-# 1.3.5 & 1.3.6: NFA con Expresiones Regulares y Forma Normal para Autómatas
+## 1.3.5 & 1.3.6: NFA con Expresiones Regulares y Forma Normal para Autómatas
 
 ## Introducción
 
@@ -424,7 +424,7 @@ El método más conocido es la **Construcción de Thompson**, que construye bloq
 4. Concatenar con el autómata para 'c'
 
 ---
-Reglas
+
 ## 1.3.6 Forma Normal para Autómatas
 
 ### El Problema
@@ -538,9 +538,9 @@ Cuando eliminamos un estado *q_rip*, para cada par de estados (*q_i*, *q_j*) don
 
 **Resultado:** La expresión regular equivalente es `(a|b)*b`
 
-# 1.4.1 Algoritmo: De NFA a DFA
+## 1.4.1 Algoritmo: De NFA a DFA
 
-# Definiciones y notación básica
+### Definiciones y notación básica
 
 Sea un autómata finito no determinista con (posibles) transiciones ε:
 \(
@@ -728,5 +728,175 @@ for (S,a),U in sorted(dfa_delta.items(), key=lambda x:(sorted(list(x[0][0])) if 
 2. Repite el ejemplo de \(\{ab^*\} \cup \{ba^*\}\) pero con un diseño de NFA alternativo, y verifica que ambos DFA aceptan el mismo lenguaje.
 3. Agrega ε–transiciones a tu NFA y verifica que el resultado del DFA sea equivalente (usa ε–cierre).
 4. Minimiza el DFA obtenido y compara el número de estados.
+
+
+
+## 1.4.2 Algoritmo: De NFA-ε a NFA
+
+La conversión de un Autómata Finito No Determinista con transiciones ε (AFND-ε) a un Autómata Finito No Determinista (AFND) es un procedimiento fundamental para demostrar que ambos modelos reconocen la misma clase de lenguajes regulares.
+
+En esta sección se presenta el **Algoritmo 2: `NFAεtoNFA`**, el cual permite eliminar todas las transiciones ε manteniendo el mismo lenguaje reconocido.
+
+---
+
+### 1.4.2.1 Conceptos Fundamentales
+
+Un **AFND-ε** permite realizar transiciones espontáneas mediante el símbolo ε, sin consumir entrada.  
+El objetivo del algoritmo es construir un **AFND equivalente**, es decir, un autómata que:
+
+- no utilice transiciones ε,
+- y reconozca el mismo lenguaje:
+  
+  $$L(A) = L(B).$$
+
+La idea principal de la conversión consiste en reemplazar cada transición ε por **atajos** directos:
+
+Si
+
+$$q_1 \xrightarrow{\epsilon} q_2, \qquad q_2 \xrightarrow{a} q_3,$$
+
+entonces se crea la transición:
+
+$$q_1 \xrightarrow{a} q_3.$$
+
+El algoritmo `NFAεtoNFA` realiza este proceso en **una sola pasada**, utilizando un conjunto de trabajo (*workset*) y aplicando simultáneamente saturación, propagación y eliminación de transiciones ε.
+
+---
+
+### 1.4.2.2 Definición Formal del Algoritmo NFAεtoNFA
+
+Sea un AFND-ε:
+
+$$A = (Q, \Sigma, \delta, Q_0, F),$$
+
+el algoritmo construye un AFND equivalente sin transiciones ε:
+
+$$B = (Q', \Sigma, \delta', Q'_0, F').$$
+
+---
+
+#### 1.4.2.2.1 Inicialización
+
+1. **Estados iniciales:**
+
+   $$Q'_0 \leftarrow Q_0.$$
+
+2. **Conjunto de estados y transiciones del nuevo autómata:**
+
+   $$Q' \leftarrow Q_0, \qquad \delta' \leftarrow \emptyset.$$
+
+3. **Estados finales iniciales:**
+
+   $$F' \leftarrow F \cap Q_0.$$
+
+4. **Conjunto de trabajo inicial:**
+
+   $$W \leftarrow \{(q,\alpha,q')\in\delta : q\in Q_0\}.$$
+
+5. **Almacén temporal de transiciones ε:**
+
+   $$\delta'' \leftarrow \emptyset.$$
+
+---
+
+#### 1.4.2.2.2 Bucle de Conversión
+
+Mientras el conjunto de trabajo \(W\) no esté vacío, extraer una transición \((q_1, \alpha, q_2)\) y procesarla según los siguientes casos.
+
+---
+
+#### 1.4.2.2.3 Caso A: Transición con Símbolo (\(\alpha \neq \epsilon\))
+
+1. Añadir \(q_2\) a \(Q'\) y la transición \((q_1,\alpha,q_2)\) a \(\delta'\).
+2. Si \(q_2 \in F\), añadirlo a \(F'\).
+3. **Propagación del símbolo:**  
+   Para cada transición:
+
+   $$q_2 \xrightarrow{\epsilon} q_3,$$
+
+   añadir al conjunto de trabajo:
+
+   $$(q_1, \alpha, q_3).$$
+
+4. Añadir a \(W\) todas las transiciones salientes de \(q_2\) cuyo símbolo esté en \(\Sigma\).
+
+---
+
+#### 1.4.2.2.4 Caso B: Transición Vacía (\(\alpha = \epsilon\))
+
+1. Guardar la transición en \(\delta''\).
+2. **ε-check:**  
+   Si \(q_2 \in F\), marcar \(q_1\) como final:
+
+   $$q_1 \in F'.$$
+
+3. **Creación de atajos:**  
+   Para cada transición:
+
+   $$q_2 \xrightarrow{\beta} q_3, \quad (\beta \in \Sigma \cup \{\epsilon\}),$$
+
+   añadir al conjunto de trabajo:
+
+   $$(q_1, \beta, q_3).$$
+
+---
+
+### 1.4.2.3 Mecanismo ε-check y Preservación de la Aceptación de ε
+
+El algoritmo debe conservar la aceptación de la palabra vacía ε.
+
+Si un estado inicial puede llegar a un estado final utilizando únicamente transiciones ε, entonces dicho estado debe considerarse final en el AFND resultante:
+
+$$\text{Si } q_2 \in F \Rightarrow q_1 \in F'.$$
+
+Sin esta verificación, la eliminación de ε podría impedir que el autómata siga aceptando ε, aun cuando el original sí lo hacía.
+
+---
+
+### 1.4.2.4 Ejemplo de Aplicación del Algoritmo
+
+#### 1.4.2.4.1 Descripción del AFND-ε
+
+Considere un AFND-ε con:
+
+- Estados: \(\{p, q, r, s\}\)
+- Alfabeto: \(\Sigma = \{a, b\}\)
+- Estado inicial: \(p\)
+- Estado final: \(s\)
+
+Transiciones:
+
+- \( p \xrightarrow{\epsilon} q \)
+- \( q \xrightarrow{\epsilon} r \)
+- \( r \xrightarrow{\epsilon} s \)
+- \( q \xrightarrow{a} q \)
+- \( r \xrightarrow{b} s \)
+
+---
+
+#### 1.4.2.4.2 Ejecución del Algoritmo
+
+| Iteración | Transición procesada | Símbolo | Nuevos elementos añadidos a W | Añadido a δ' | Observaciones |
+|----------:|----------------------|---------|-------------------------------|--------------|---------------|
+| **0** | Inicialización | – | (p,ε,q), (p,ε,r) | ∅ | Se llena el conjunto de trabajo inicial. |
+| **1** | (p,ε,q) | ε | (p,a,q), (p,b,s), (p,ε,r), (p,ε,s) | ∅ | Propagación desde q. |
+| **2** | (p,ε,r) | ε | (p,b,s), (p,ε,s) | ∅ | Propagación desde r. |
+| **3** | (p,a,q) | a | – | (p,a,q) | Se añade transición directa. |
+| **4** | (p,b,s) | b | – | (p,b,s) | Se añade transición directa y se marca s como final. |
+| … | Continúa | | – | (q,a,q), (q,b,s) | Transiciones finales sin ε. |
+
+---
+
+### 1.4.2.5 Resultado Final
+
+Tras completar el algoritmo:
+
+- todas las transiciones ε han sido eliminadas,
+- los atajos necesarios fueron generados,
+- y el AFND resultante contiene únicamente transiciones con símbolos del alfabeto.
+
+El autómata obtenido es completamente equivalente al AFND-ε original.
+
+---
 
 
