@@ -360,3 +360,180 @@ La $\epsilon$-cerradura de un estado $q$ es el conjunto de todos los estados acc
 Este concepto es crucial para eliminar $\epsilon$-transiciones y convertir un $\epsilon$-AFND en un AFND estándar.
 
 
+# 1.3.5 & 1.3.6: NFA con Expresiones Regulares y Forma Normal para Autómatas
+
+## Introducción
+
+En el estudio de los lenguajes regulares, podemos describir un lenguaje de dos formas complementarias:
+
+- **Forma Descriptiva**: Mediante **Expresiones Regulares** (dicen *qué* cadenas pertenecen al lenguaje)
+- **Forma Reconocedora**: Mediante **Autómatas Finitos** (muestran *cómo* reconocer si una cadena pertenece al lenguaje)
+
+---
+
+## 1.3.5 Equivalencia entre NFA y Expresiones Regulares
+
+### El Teorema de Kleene
+
+**Teorema**: Un lenguaje es regular si y solo si puede ser descrito por una expresión regular.
+
+> Para cualquier Expresión Regular *R*, existe un NFA *N* tal que *L(N) = L(R)*.
+> 
+> **Inversamente**: Para cualquier NFA *N*, existe una expresión regular *R* tal que *L(R) = L(N)*.
+
+Esto significa que ambas representaciones son **igualmente expresivas**.
+
+---
+
+### Conversión: De Expresión Regular a NFA (Construcción de Thompson)
+
+El método más conocido es la **Construcción de Thompson**, que construye bloques básicos de autómatas y los combina usando operaciones correspondientes a los operadores de expresiones regulares.
+
+#### Construcciones Básicas
+
+**1. Cadena vacía (ε):** Un autómata con estado inicial que transita directamente al estado final mediante ε.
+
+**2. Símbolo del alfabeto (a):** Un autómata que lee exactamente el símbolo 'a' y transita del inicial al final.
+
+**3. Lenguaje vacío (∅):** Un autómata donde el estado inicial no tiene forma de llegar al final.
+
+#### Operaciones Compuestas
+
+**1. Unión (R₁ ∪ R₂):**
+- Crear un nuevo estado inicial con dos transiciones ε: una hacia el autómata de *R₁* y otra hacia el de *R₂*
+- Crear un nuevo estado final
+- Conectar ambos autómatas finales al nuevo estado final mediante ε
+- El autómata puede "elegir" no determinísticamente cuál camino tomar
+
+**2. Concatenación (R₁R₂):**
+- Conectar los estados de aceptación de *NFA₁* con el estado inicial de *NFA₂* mediante transiciones ε
+- El estado inicial es el de *NFA₁* y el estado final es el de *NFA₂*
+- La transición ε permite "continuar" desde donde terminó *R₁* hacia *R₂*
+
+**3. Cerradura de Kleene (R*):**
+- Crear un nuevo estado inicial y uno final
+- Añadir una transición ε directa del nuevo inicial al nuevo final (para aceptar ε)
+- Conectar el nuevo inicial con el antiguo inicial del autómata de *R*
+- Conectar el antiguo final de *R* con el nuevo final
+- Añadir una transición ε del antiguo final al antiguo inicial (permitiendo repetir)
+
+**Ejemplo:** Para la expresión regular `(a|b)*c`:
+1. Construir autómatas para 'a' y 'b'
+2. Unirlos (operación |)
+3. Aplicar Kleene (*) al resultado
+4. Concatenar con el autómata para 'c'
+
+---
+Reglas
+## 1.3.6 Forma Normal para Autómatas
+
+### El Problema
+
+Para convertir un NFA en una Expresión Regular, necesitamos estandarizar el autómata, ya que un NFA típico puede tener:
+- Múltiples estados de aceptación
+- Ciclos complejos
+- Transiciones desde y hacia el estado inicial
+- Estructuras difíciles de "leer" como expresiones regulares
+
+---
+
+### GNFA (Autómata Finito No Determinista Generalizado)
+
+Un **GNFA** es un autómata en forma normal que cumple con:
+
+**1. Estado Inicial Único:**
+- Un único estado inicial sin transiciones entrantes
+- Solo tiene transiciones salientes
+- Garantiza que el autómata "comience limpiamente"
+
+**2. Estado Final Único:**
+- Un único estado de aceptación sin transiciones salientes
+- Solo tiene transiciones entrantes
+- Garantiza que la aceptación sea un punto final definido
+
+**3. Transiciones Generalizadas:**
+- Las etiquetas de las transiciones son **Expresiones Regulares completas**
+- Ejemplo: una transición puede estar etiquetada como `(a|b)*c`
+
+**4. Completitud:**
+- Entre cada par de estados puede haber a lo sumo una transición
+- Si no existe transición física, se considera una transición etiquetada con ∅
+
+---
+
+### Proceso de Normalización
+
+#### Paso 1: Crear Estado Inicial Único
+
+Si el estado inicial tiene transiciones entrantes:
+- Crear un nuevo estado inicial
+- Añadir una transición ε desde el nuevo inicial hacia el antiguo estado inicial
+
+#### Paso 2: Crear Estado Final Único
+
+Si hay múltiples estados de aceptación:
+- Crear un nuevo estado final único
+- Desde cada antiguo estado de aceptación, añadir una transición ε hacia el nuevo estado final
+- Solo el nuevo estado es de aceptación
+
+#### Paso 3: Convertir a Transiciones Generalizadas
+
+Si hay múltiples transiciones entre los mismos dos estados, combinarlas en una sola transición etiquetada con la unión de todas las etiquetas.
+
+**Ejemplo:** Si hay transiciones con 'a' y 'b' entre q₁ y q₂, se combinan en una transición etiquetada con `(a|b)`.
+
+---
+
+### Algoritmo de Eliminación de Estados
+
+Una vez que el autómata está en Forma Normal (GNFA), se aplica el **algoritmo de Eliminación de Estados**:
+
+#### Objetivo
+
+Eliminar estados intermedios uno por uno, "recableando" las transiciones para preservar el lenguaje, hasta que solo queden el estado inicial y el final.
+
+#### Proceso de Eliminación
+
+Cuando eliminamos un estado *q_rip*, para cada par de estados (*q_i*, *q_j*) donde:
+- Hay una transición de *q_i* a *q_rip* etiquetada con *R₁*
+- Hay una transición de *q_rip* a *q_j* etiquetada con *R₂*
+- Hay un ciclo en *q_rip* etiquetado con *R₃*
+- Ya existe una transición directa de *q_i* a *q_j* etiquetada con *R₄*
+
+**Nueva transición:** `R_nueva = R₄ | R₁R₃*R₂`
+
+**Explicación:**
+- `R₁`: Lo necesario para llegar a *q_rip* desde *q_i*
+- `R₃*`: Puede quedarse en *q_rip* cero o más veces (el ciclo)
+- `R₂`: Lo necesario para salir de *q_rip* hacia *q_j*
+- `R₄`: La ruta directa que ya existía
+- `|`: Unión (cualquiera de las dos opciones funciona)
+
+#### Pasos Completos
+
+1. Normalizar el NFA a GNFA
+2. Mientras haya más de 2 estados:
+   - Elegir un estado intermedio (ni inicial ni final)
+   - Calcular las nuevas expresiones regulares para cada combinación de estados
+   - Eliminar el estado intermedio y sus transiciones
+3. La expresión regular en la transición entre el inicial y el final es la **expresión regular equivalente** al NFA original
+
+---
+
+## Ejemplo de Conversión
+
+**NFA que acepta cadenas que terminan en 'b':**
+- Estados: {q₀, q₁}
+- Inicial: q₀
+- Finales: {q₁}
+- Transiciones: q₀ --a--> q₀, q₀ --b--> q₀, q₀ --b--> q₁
+
+**Proceso:**
+1. Normalizar: Añadir nuevo estado inicial y final único con transiciones ε
+2. Generalizar transiciones: Combinar transiciones con 'a' y 'b' en q₀ como `(a|b)`
+3. Eliminar q₀: Calcular expresión para ir de q_start a q₁ pasando por q₀
+   - Entrada: ε, Loop: (a|b), Salida: b
+   - Expresión: `ε(a|b)*b = (a|b)*b`
+4. Eliminar q₁: Simplificar
+
+**Resultado:** La expresión regular equivalente es `(a|b)*b`
